@@ -24,7 +24,7 @@ develop:
 	$(PYTHON) setup.py develop
 
 test:
-	py.test -v --cov=$(PROJECT) --cov-report term tests
+	py.test -v --cov=$(PROJECT) --cov-report term-missing tests
 
 test-all:
 	$(PYTHON) setup.py test
