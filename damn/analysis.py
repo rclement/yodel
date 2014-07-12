@@ -262,7 +262,8 @@ class AnalysisWindow:
         """
         self._resize(size)
         for i in range(0, self.size):
-            self.signal[i] = 0.5 * (1.0 - math.cos(2.0 * math.pi * i / (self.size - 1)))
+            self.signal[i] = (0.5 * (1.0 -
+                              math.cos(2.0 * math.pi * i / (self.size - 1))))
 
     def hamming(self, size):
         """
@@ -272,7 +273,8 @@ class AnalysisWindow:
         """
         self._resize(size)
         for i in range(0, self.size):
-            self.signal[i] = 0.54 - 0.46 * math.cos(2.0 * math.pi * i / (self.size - 1))
+            self.signal[i] = (0.54 - 0.46 *
+                              math.cos(2.0 * math.pi * i / (self.size - 1)))
 
     def process(self, input_signal, output_signal):
         """
