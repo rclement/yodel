@@ -62,8 +62,8 @@ import pkg_resources
 try:
     release = pkg_resources.get_distribution('damn').version
 except pkg_resources.DistributionNotFound:
-    print 'To build the documentation, The distribution information of sandman'
-    print 'Has to be available.  Either install the package into your'
+    print 'To build the documentation, The distribution information of damn'
+    print 'has to be available.  Either install the package into your'
     print 'development environment or run "setup.py develop" to setup the'
     print 'metadata.  A virtualenv is recommended!'
     sys.exit(1)
