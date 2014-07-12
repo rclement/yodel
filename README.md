@@ -1,7 +1,7 @@
 damn
 ====
 [![Build Status](https://travis-ci.org/rclement/damn.svg?branch=develop)](https://travis-ci.org/rclement/damn)
-[![Coverage Status](https://coveralls.io/repos/rclement/damn/badge.png)](https://coveralls.io/r/rclement/damn)
+[![Coverage Status](https://coveralls.io/repos/rclement/damn/badge.png?branch=develop)](https://coveralls.io/r/rclement/damn?branch=develop)
 
 *damn* (aka _digital audio for music nerds_) is an easy-to-use python package
 for digital audio signal processing, analysis and synthesis.

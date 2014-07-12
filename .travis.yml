@@ -4,9 +4,8 @@ python:
     - "3.4"
 install: 
     - "pip install -r requirements-dev.txt"
-    - "pip install coverage"
     - "pip install coveralls"
 script: 
-    - "coverage run --source=damn setup.py test"
+    - "make test"
 after_success:
     coveralls
