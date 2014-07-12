@@ -2,6 +2,7 @@ PYTHON = python
 
 PROJECT = damn
 DOCS_DIR = docs
+TEST_DIR = tests
 
 .PHONY: build install distribute docs develop test test-all lint clean help
 
@@ -18,19 +19,20 @@ distribute:
 
 docs:
 	@sphinx-apidoc -F -o $(DOCS_DIR) $(PROJECT)
+	@sphinx-apidoc -f -o $(DOCS_DIR) $(PROJECT)
 	@sphinx-build -b html $(DOCS_DIR) $(DOCS_DIR)/_build/html
 
 develop:
 	$(PYTHON) setup.py develop
 
 test:
-	py.test -v --cov=$(PROJECT) --cov-report term-missing tests
+	py.test -v --cov=$(PROJECT) --cov-report term-missing $(TEST_DIR)
 
 test-all:
 	$(PYTHON) setup.py test
 
 lint:
-	pep8 --show-source --statistics --count $(PROJECT)
+	pep8 --statistics --count --show-source $(PROJECT)
 
 clean:
 	@rm -rf build dist $(DOCS_DIR)/_build $(PROJECT)/__pycache__ $(PROJECT)/*.pyc
@@ -43,6 +45,6 @@ help:
 	@echo "  develop    : install module in development mode"
 	@echo "  test       : run unit tests"
 	@echo "  test-all   : run the whole testing suite"
-	@echo "  lint       : run PEP8 lint checking"
+	@echo "  lint       : run the PEP8 lint checker"
 	@echo "  clean      : remove all build files"
 
