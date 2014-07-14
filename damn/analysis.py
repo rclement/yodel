@@ -252,7 +252,7 @@ class AnalysisWindow:
 
         :param size: length of the analysis window
         """
-        self.set_size(size)
+        self._resize(size)
 
     def hanning(self, size):
         """
