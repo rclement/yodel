@@ -262,8 +262,9 @@ class AnalysisWindow:
         """
         self._resize(size)
         for i in range(0, self.size):
-            self.signal[i] = (0.5 * (1.0 -
-                              math.cos(2.0 * math.pi * i / (self.size - 1))))
+            self.signal[i] = (0.5 -
+                              (0.5 * math.cos(2.0 * math.pi * i /
+                                              (self.size - 1))))
 
     def hamming(self, size):
         """
@@ -273,8 +274,23 @@ class AnalysisWindow:
         """
         self._resize(size)
         for i in range(0, self.size):
-            self.signal[i] = (0.54 - 0.46 *
-                              math.cos(2.0 * math.pi * i / (self.size - 1)))
+            self.signal[i] = (0.54 -
+                              (0.46 * math.cos(2.0 * math.pi * i /
+                                               (self.size - 1))))
+
+    def blackman(self, size):
+        """
+        Make a Blackman analysis window.
+
+        :param size: length of the analysis window
+        """
+        self._resize(size)
+        for i in range(0, self.size):
+            self.signal[i] = (0.42659 -
+                              (0.49656 * math.cos(2.0 * math.pi * i /
+                                                  (self.size - 1))) +
+                              (0.076849 * math.cos(4.0 * math.pi * i /
+                                                   (self.size - 1))))
 
     def process(self, input_signal, output_signal):
         """
