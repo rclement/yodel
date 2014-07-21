@@ -18,8 +18,8 @@ distribute:
 	$(PYTHON) setup.py sdist
 
 docs:
-	@sphinx-apidoc -F -o $(DOCS_DIR) $(PROJECT)
-	@sphinx-apidoc -f -o $(DOCS_DIR) $(PROJECT)
+	@sphinx-apidoc -F -e -o $(DOCS_DIR) $(PROJECT)
+	@sphinx-apidoc -f -e -o $(DOCS_DIR) $(PROJECT)
 	@sphinx-build -b html $(DOCS_DIR) $(DOCS_DIR)/_build/html
 
 develop:
