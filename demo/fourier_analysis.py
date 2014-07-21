@@ -125,6 +125,8 @@ class FourierAnalysisDemo:
             self.window.hanning(self.fft_size)
         elif windowtype == 'Hamming':
             self.window.hamming(self.fft_size)
+        elif windowtype == 'Blackman':
+            self.window.blackman(self.fft_size)
         self._generate_signal()
         self._analyze_signal()
         self._update_plots()
@@ -216,7 +218,7 @@ class FourierAnalysisDemo:
 
         self._windowtype_ax = plt.axes([0.7, 0.05, 0.15, 0.20])
         self._windowtype_radio = RadioButtons(self._windowtype_ax,
-                                              ('Flat', 'Hanning', 'Hamming'))
+                                              ('Flat', 'Hanning', 'Hamming', 'Blackman'))
         self._windowtype_radio.on_clicked(self.set_window_type)
 
     def _update_plots(self):
