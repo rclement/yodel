@@ -2,29 +2,19 @@ import sys
 import math
 import random
 import damn.analysis as da
+import damn.conversion as dcv
+import damn.complex as dcx
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RadioButtons, Slider
 
-
-def lin2db(amp):
-    if amp > 1e-5:
-        return 20.0 * math.log10(amp)
-    else:
-        return -100.0
-
-def db2lin(db):
-    return math.pow(10, db / 20.0)
-
-def modulus(re, im):
-    return math.sqrt(re * re + im * im)
 
 def amplitude_response(spec_real, spec_imag, db=True):
     size = len(spec_real)
     amp = [0] * size
     for i in range(0, size):
-        amp[i] = modulus(spec_real[i], spec_imag[i]) / (size/2)
+        amp[i] = dcx.modulus(spec_real[i], spec_imag[i]) / (size/2)
         if db:
-            amp[i] = lin2db(amp[i])
+            amp[i] = dcv.lin2db(amp[i])
     return amp
 
 def generate_sine(fs, f0, amp, size):
@@ -99,7 +89,7 @@ class FourierAnalysisDemo:
     def __init__(self):
         self.samplerate = 48000
         self.frequency = 440
-        self.amplitude = db2lin(0)
+        self.amplitude = dcv.db2lin(0)
         self.signaltype = 'Sine'
         self.fft_size = 512
         self.window = da.AnalysisWindow(self.fft_size)
@@ -138,7 +128,7 @@ class FourierAnalysisDemo:
         self._update_plots()
 
     def set_signal_amplitude(self, amplitude):
-        self.amplitude = db2lin(amplitude)
+        self.amplitude = dcv.db2lin(amplitude)
         self._generate_signal()
         self._analyze_signal()
         self._update_plots()
@@ -207,7 +197,7 @@ class FourierAnalysisDemo:
                                    'Amplitude',
                                    -100,
                                    0,
-                                   valinit = lin2db(self.amplitude))
+                                   valinit = dcv.lin2db(self.amplitude))
         self._ampl_slider.on_changed(self.set_signal_amplitude)
 
         self._signaltype_ax = plt.axes([0.5, 0.05, 0.15, 0.20])
