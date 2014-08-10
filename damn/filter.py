@@ -5,7 +5,8 @@ import array
 class Biquad:
     """
     A biquad filter is a 2-poles/2-zeros filter allowing to perform
-    various kind of filtering.
+    various kind of filtering. Signal attenuation is at a rate of 12 dB
+    per octave.
     """
 
     def __init__(self):
@@ -206,6 +207,19 @@ class Biquad:
         self._b_coeffs[1] = b1 / a0
         self._b_coeffs[2] = b2 / a0
 
+    def process_sample(self, x):
+        curr = x
+        y = (self._b_coeffs[0] * x +
+             self._b_coeffs[1] * self._x1 +
+             self._b_coeffs[2] * self._x2 -
+             self._a_coeffs[1] * self._y1 -
+             self._a_coeffs[2] * self._y2)
+        self._x2 = self._x1
+        self._x1 = curr
+        self._y2 = self._y1
+        self._y1 = y
+        return y
+
     def process(self, x, y):
         """
         Filter an input signal. Can be used for in-place filtering.
@@ -215,16 +229,7 @@ class Biquad:
         """
         num_samples = len(x)
         for n in range(0, num_samples):
-            curr = x[n]
-            y[n] = (self._b_coeffs[0] * x[n] +
-                    self._b_coeffs[1] * self._x1 +
-                    self._b_coeffs[2] * self._x2 -
-                    self._a_coeffs[1] * self._y1 -
-                    self._a_coeffs[2] * self._y2)
-            self._x2 = self._x1
-            self._x1 = curr
-            self._y2 = self._y1
-            self._y1 = y[n]
+            y[n] = self.process_sample(x[n])
 
     def _compute_constants(self, fs, fc, q, dbgain=0):
         """
