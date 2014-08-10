@@ -42,6 +42,7 @@ setup(
     url='https://github.com/rclement/damn',
     packages=['damn'],
     tests_require=['tox'],
-    cmdclass = {'test': Tox},
+    cmdclass={'test': Tox},
     platforms='any',
+    license='MIT'
 )
