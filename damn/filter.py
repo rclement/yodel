@@ -208,6 +208,12 @@ class Biquad:
         self._b_coeffs[2] = b2 / a0
 
     def process_sample(self, x):
+        """
+        Filter a single sample and return the filtered sample.
+
+        :param x: input sample
+        :rtype: filtered sample
+        """
         curr = x
         y = (self._b_coeffs[0] * x +
              self._b_coeffs[1] * self._x1 +
