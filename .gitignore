@@ -15,12 +15,14 @@ dist/
 eggs/
 lib/
 lib64/
+man/
 parts/
 sdist/
 var/
 *.egg-info/
 .installed.cfg
 *.egg
+pyvenv.cfg
 
 # Installer logs
 pip-log.txt
@@ -52,3 +54,14 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# Temporary files
+*.swp
+
+# OS generated files #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
