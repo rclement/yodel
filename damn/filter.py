@@ -7,6 +7,11 @@ class Biquad:
     A biquad filter is a 2-poles/2-zeros filter allowing to perform
     various kind of filtering. Signal attenuation is at a rate of 12 dB
     per octave.
+
+    *Reference:*
+        "Cookbook formulae for audio EQ biquad filter coefficients",
+        Robert Bristow-Johnson
+        (http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt)
     """
 
     def __init__(self):
