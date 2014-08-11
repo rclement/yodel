@@ -1,6 +1,6 @@
 """
-**damn** (aka *digital audio for music nerds*) is an easy-to-use python package
-for digital audio signal processing, analysis and synthesis.
+**yodel** (*the Swiss Army knife or your sound*) is an easy-to-use python
+package for digital audio signal processing, analysis and synthesis.
 """
 
 __author__ = 'Romain Clement'

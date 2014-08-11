@@ -1,7 +1,7 @@
-import damn.filter
-import damn.analysis
-import damn.complex as dcx
-import damn.conversion as dcv
+import yodel.filter
+import yodel.analysis
+import yodel.complex as dcx
+import yodel.conversion as dcv
 import math
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RadioButtons, Slider
@@ -19,7 +19,7 @@ def frequency_response(response):
     size = len(response)
     freq_response_real = [0] * size
     freq_response_imag = [0] * size
-    fft = damn.analysis.FFT(size)
+    fft = yodel.analysis.FFT(size)
     fft.forward(response, freq_response_real, freq_response_imag)
     return freq_response_real, freq_response_imag
 
@@ -28,9 +28,9 @@ def amplitude_response(spec_real, spec_imag, db = False):
     size = len(spec_real)
     amp = [0] * size
     for i in range(0, size):
-        amp[i] = damn.complex.modulus(spec_real[i], spec_imag[i])
+        amp[i] = yodel.complex.modulus(spec_real[i], spec_imag[i])
         if db:
-            amp[i] = damn.conversion.lin2db(amp[i])
+            amp[i] = yodel.conversion.lin2db(amp[i])
     return amp
 
 
@@ -48,7 +48,7 @@ class BiquadSelector:
         self._freq_response_imag = [0] * self._bq_size
         self._amplitude_response = [0] * self._bq_size
         self._phase_response = [0] * self._bq_size
-        self._bq_filter = damn.filter.Biquad()
+        self._bq_filter = yodel.filter.Biquad()
         self._biquad_type = 'LPF'
         self.update_biquad()
 

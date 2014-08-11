@@ -1,9 +1,9 @@
 import sys
 import math
 import random
-import damn.analysis as da
-import damn.conversion as dcv
-import damn.complex as dcx
+import yodel.analysis as da
+import yodel.conversion as dcv
+import yodel.complex as dcx
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RadioButtons, Slider
 

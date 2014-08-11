@@ -1,5 +1,5 @@
 import unittest
-import damn.conversion as dc
+import yodel.conversion as dc
 
 
 class TestLin2Db(unittest.TestCase):

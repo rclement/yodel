@@ -1,6 +1,6 @@
 PYTHON = python
 
-PROJECT = damn
+PROJECT = yodel
 DOCS_DIR = docs
 TEST_DIR = tests
 

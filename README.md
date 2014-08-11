@@ -1,10 +1,10 @@
-damn
-====
+Description
+===========
 
-[![Build Status](https://travis-ci.org/rclement/damn.svg?branch=develop)](https://travis-ci.org/rclement/damn)
-[![Coverage Status](https://coveralls.io/repos/rclement/damn/badge.png?branch=develop)](https://coveralls.io/r/rclement/damn?branch=develop)
+[![Build Status](https://travis-ci.org/rclement/yodel.svg?branch=develop)](https://travis-ci.org/rclement/yodel)
+[![Coverage Status](https://coveralls.io/repos/rclement/yodel/badge.png?branch=develop)](https://coveralls.io/r/rclement/yodel?branch=develop)
 
-*damn* (aka _digital audio for music nerds_) is an easy-to-use python package
+**yodel** (_the Swiss Army knife or your sound_) is an easy-to-use python package
 for digital audio signal processing, analysis and synthesis.
 
 Changelog
