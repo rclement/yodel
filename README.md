@@ -4,7 +4,7 @@ Description
 [![Build Status](https://travis-ci.org/rclement/yodel.svg?branch=develop)](https://travis-ci.org/rclement/yodel)
 [![Coverage Status](https://coveralls.io/repos/rclement/yodel/badge.png?branch=develop)](https://coveralls.io/r/rclement/yodel?branch=develop)
 
-**yodel** (_the Swiss Army knife or your sound_) is an easy-to-use python package
+**yodel** (_the Swiss Army knife of your sound_) is an easy-to-use python package
 for digital audio signal processing, analysis and synthesis.
 
 Changelog

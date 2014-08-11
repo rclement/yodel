@@ -34,6 +34,9 @@ test-all:
 lint:
 	pep8 --statistics --count --show-source $(PROJECT)
 
+readme-rst:
+	pandoc --from=markdown --to=rst README.md -o README.rst
+
 clean:
 	@rm -rf build dist $(DOCS_DIR)/_build $(PROJECT)/__pycache__ $(PROJECT)/*.pyc
 
