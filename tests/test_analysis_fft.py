@@ -1,7 +1,7 @@
 import unittest
 import array
 import math
-import damn.analysis
+import yodel.analysis
 
 
 class CommonFourierTest():
@@ -66,7 +66,7 @@ class TestDFT(unittest.TestCase, CommonFourierTest):
         CommonFourierTest.tearDown(self)
 
     def create_fourier(self):
-        return damn.analysis.DFT(self.length)
+        return yodel.analysis.DFT(self.length)
 
 
 class TestFFT(unittest.TestCase, CommonFourierTest):
@@ -78,7 +78,7 @@ class TestFFT(unittest.TestCase, CommonFourierTest):
         CommonFourierTest.tearDown(self)
 
     def create_fourier(self):
-        return damn.analysis.FFT(self.length)
+        return yodel.analysis.FFT(self.length)
 
 
 if __name__ == '__main__':

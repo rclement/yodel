@@ -1,10 +1,10 @@
 import unittest
 import array
 import math
-import damn.filter
-import damn.analysis
-import damn.conversion
-import damn.complex
+import yodel.filter
+import yodel.analysis
+import yodel.conversion
+import yodel.complex
 
 
 def impulse_response(bq, size):
@@ -19,7 +19,7 @@ def frequency_response(response):
     size = len(response)
     freq_response_real = [0] * size
     freq_response_imag = [0] * size
-    fft = damn.analysis.FFT(size)
+    fft = yodel.analysis.FFT(size)
     fft.forward(response, freq_response_real, freq_response_imag)
     return freq_response_real, freq_response_imag
 
@@ -28,9 +28,9 @@ def amplitude_response(spec_real, spec_imag, db = False):
     size = len(spec_real)
     amp = [0] * size
     for i in range(0, size):
-        amp[i] = damn.complex.modulus(spec_real[i], spec_imag[i])
+        amp[i] = yodel.complex.modulus(spec_real[i], spec_imag[i])
         if db:
-            amp[i] = damn.conversion.lin2db(amp[i])
+            amp[i] = yodel.conversion.lin2db(amp[i])
     return amp
 
 
@@ -42,7 +42,7 @@ class TestLowPassFilter(unittest.TestCase):
         self.delta = (1.0 / self.block_size) * self.sample_rate
         self.fc = 100
         self.q = 1
-        self.lpf = damn.filter.Biquad()
+        self.lpf = yodel.filter.Biquad()
         self.input_signal = [0] * self.block_size
         self.output_signal = [0] * self.block_size
         self.input_signal[0] = 1
@@ -88,7 +88,7 @@ class TestHighPassFilter(unittest.TestCase):
         self.delta = (1.0 / self.block_size) * self.sample_rate
         self.fc = 100
         self.q = 1
-        self.hpf = damn.filter.Biquad()
+        self.hpf = yodel.filter.Biquad()
         self.input_signal = [0] * self.block_size
         self.output_signal = [0] * self.block_size
         self.input_signal[0] = 1
@@ -134,7 +134,7 @@ class TestBandPassFilter(unittest.TestCase):
         self.delta = (1.0 / self.block_size) * self.sample_rate
         self.fc = 100
         self.q = 1
-        self.bpf = damn.filter.Biquad()
+        self.bpf = yodel.filter.Biquad()
         self.input_signal = [0] * self.block_size
         self.output_signal = [0] * self.block_size
         self.input_signal[0] = 1
@@ -181,7 +181,7 @@ class TestNotchFilter(unittest.TestCase):
         self.delta = (1.0 / self.block_size) * self.sample_rate
         self.fc = 100
         self.q = 1
-        self.nf = damn.filter.Biquad()
+        self.nf = yodel.filter.Biquad()
         self.input_signal = [0] * self.block_size
         self.output_signal = [0] * self.block_size
         self.input_signal[0] = 1
@@ -226,7 +226,7 @@ class TestPeakFilter(unittest.TestCase):
         self.fc = 100
         self.q = 1
         self.dbgain = 0
-        self.pf = damn.filter.Biquad()
+        self.pf = yodel.filter.Biquad()
         self.input_signal = [0] * self.block_size
         self.output_signal = [0] * self.block_size
         self.input_signal[0] = 1
@@ -290,7 +290,7 @@ class TestLowShelfFilter(unittest.TestCase):
         self.fc = 100
         self.q = 1
         self.dbgain = 0
-        self.lsf= damn.filter.Biquad()
+        self.lsf= yodel.filter.Biquad()
         self.input_signal = [0] * self.block_size
         self.output_signal = [0] * self.block_size
         self.input_signal[0] = 1
@@ -347,7 +347,7 @@ class TestHighShelfFilter(unittest.TestCase):
         self.fc = 100
         self.q = 1
         self.dbgain = 0
-        self.hsf = damn.filter.Biquad()
+        self.hsf = yodel.filter.Biquad()
         self.input_signal = [0] * self.block_size
         self.output_signal = [0] * self.block_size
         self.input_signal[0] = 1
@@ -404,7 +404,7 @@ class TestCustomFilter(unittest.TestCase):
         self.fc = 100
         self.q = 1
         self.dbgain = 0
-        self.cf = damn.filter.Biquad()
+        self.cf = yodel.filter.Biquad()
         self.input_signal = [0] * self.block_size
         self.output_signal = [0] * self.block_size
         self.input_signal[0] = 1

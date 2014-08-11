@@ -33,15 +33,16 @@ class Tox(TestCommand):
         sys.exit(errcode)
 
 setup(
-    name='damn',
-    version=find_version('damn', '__init__.py'),
-    description='Digital Audio for Music Nerds',
+    name='yodel',
+    version=find_version('yodel', '__init__.py'),
+    description='The Swiss Army knife of your sound',
     long_description=read('README.md'),
     author='Romain Clement',
     author_email='contact@romainclement.com',
-    url='https://github.com/rclement/damn',
-    packages=['damn'],
+    url='https://github.com/rclement/yodel',
+    packages=['yodel'],
     tests_require=['tox'],
-    cmdclass = {'test': Tox},
+    cmdclass={'test': Tox},
     platforms='any',
+    license='MIT'
 )

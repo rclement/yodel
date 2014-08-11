@@ -1,6 +1,6 @@
 import unittest
 import math
-import damn.complex as dc
+import yodel.complex as dc
 
 
 class TestModulus(unittest.TestCase):
