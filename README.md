@@ -10,6 +10,12 @@ for digital audio signal processing, analysis and synthesis.
 Changelog
 =========
 
+Version 0.1.1
+-------------
+
+* Renaming the project to Yodel
+* Better packaging for PyPI
+
 Version 0.1.0
 -------------
 
