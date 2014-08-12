@@ -2,9 +2,9 @@ PYTHON = python
 
 PROJECT = yodel
 DOCS_DIR = docs
-TEST_DIR = tests
+TEST_DIR = test
 
-.PHONY: build install distribute docs develop test test-all lint clean help
+.PHONY: build install distribute docs develop test test-all lint readme-rst pypi-register pypi-upload clean help
 
 all: build install docs
 
@@ -36,6 +36,12 @@ lint:
 
 readme-rst:
 	pandoc --from=markdown --to=rst README.md -o README.rst
+
+pypi-register:
+	$(PYTHON) setup.py register
+
+pypi-upload:
+	$(PYTHON) setup.py sdist upload
 
 clean:
 	@rm -rf build dist $(DOCS_DIR)/_build $(PROJECT)/__pycache__ $(PROJECT)/*.pyc
