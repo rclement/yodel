@@ -7,7 +7,7 @@ Description
 python package for digital audio signal processing, analysis and
 synthesis. It is meant to provide a comprehensive set of tools to
 manipulate audio signals. It can be used for prototyping as well as
-developing audio application in Python.
+developing audio applications in Python.
 
 Installation
 ============

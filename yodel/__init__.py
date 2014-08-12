@@ -1,6 +1,9 @@
 """
-**yodel** (*the Swiss Army knife of your sound*) is an easy-to-use python
-package for digital audio signal processing, analysis and synthesis.
+**Yodel** (*the Swiss Army knife for your sound*) is an easy-to-use
+python package for digital audio signal processing, analysis and
+synthesis. It is meant to provide a comprehensive set of tools to
+manipulate audio signals. It can be used for prototyping as well as
+developing audio applications in Python.
 """
 
 __author__ = 'Romain Clement'
