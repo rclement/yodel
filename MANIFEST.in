@@ -1,1 +1,7 @@
 include README.md
+include Makefile
+include requirements.txt
+include requirements-dev.txt
+include tox.ini
+recursive-include docs *.rst conf.py Makefile make.bat
+recursive-include demo *.py
