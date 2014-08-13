@@ -35,8 +35,8 @@ class Tox(TestCommand):
 setup(
     name='yodel',
     version=find_version('yodel', '__init__.py'),
-    description='The Swiss Army knife of your sound',
-    long_description=read('README.md'),
+    description='The Swiss Army knife for your sound',
+    long_description=read('README.rst'),
     author='Romain Clement',
     author_email='contact@romainclement.com',
     url='https://github.com/rclement/yodel',
