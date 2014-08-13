@@ -30,6 +30,14 @@ Any questions or comments about Yodel? Let me know at [contact@romainclement.com
 Changelog
 =========
 
+Version 0.1.2
+-------------
+
+* More complete README
+* Fix Python package long description (use README.rst)
+* ReadTheDocs integration
+* Integrate extra folders in distribution (test, demo, docs)
+
 Version 0.1.1
 -------------
 
