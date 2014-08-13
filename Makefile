@@ -4,7 +4,7 @@ PROJECT = yodel
 DOCS_DIR = docs
 TEST_DIR = test
 
-.PHONY: build install distribute docs develop test test-all lint readme-rst pypi-register pypi-upload clean help
+.PHONY: build install dist docs-generate docs develop test test-all lint readme-rst pypi-register pypi-upload clean help
 
 all: build install docs
 
@@ -14,11 +14,14 @@ build: $(SOURCES)
 install: 
 	$(PYTHON) setup.py install
 
-distribute:
+dist:
 	$(PYTHON) setup.py sdist
 
-docs:
+docs-generate:
 	@sphinx-apidoc -F -e -o $(DOCS_DIR) $(PROJECT)
+	@sphinx-build -b html $(DOCS_DIR) $(DOCS_DIR)/_build/html
+
+docs:
 	@sphinx-apidoc -f -e -o $(DOCS_DIR) $(PROJECT)
 	@sphinx-build -b html $(DOCS_DIR) $(DOCS_DIR)/_build/html
 
@@ -44,16 +47,20 @@ pypi-upload:
 	$(PYTHON) setup.py sdist upload
 
 clean:
-	@rm -rf build dist $(DOCS_DIR)/_build $(PROJECT)/__pycache__ $(PROJECT)/*.pyc
+	@rm -rf build dist $(DOCS_DIR)/_build $(DOCS_DIR)/_static $(DOCS_DIR)/_templates $(PROJECT)/__pycache__ $(PROJECT)/*.pyc $(PROJECT).egg-info
 
 help:
-	@echo "  build      : build module"
-	@echo "  install    : install module"
-	@echo "  distribute : create source distribution archive"
-	@echo "  docs       : create documentation"
-	@echo "  develop    : install module in development mode"
-	@echo "  test       : run unit tests"
-	@echo "  test-all   : run the whole testing suite"
-	@echo "  lint       : run the PEP8 lint checker"
-	@echo "  clean      : remove all build files"
+	@echo "  build         : build module"
+	@echo "  install       : install module"
+	@echo "  dist          : create source distribution archive"
+	@echo "  docs-generate : generate documentation from scratch (no existing index)"
+	@echo "  docs          : create documentation"
+	@echo "  develop       : install module in development mode"
+	@echo "  test          : run unit tests"
+	@echo "  test-all      : run the whole testing suite"
+	@echo "  lint          : run the PEP8 lint checker"
+	@echo "  readme-rst    : generate README.rst based on README.md"
+	@echo "  pypi-register : register current package version on PyPI"
+	@echo "  pypi-upload   : upload current package version on PyPI"
+	@echo "  clean         : remove all build files"
 
