@@ -174,6 +174,45 @@ class TestBandPassFilter(unittest.TestCase):
         self.common_test_cutoff(int(self.sample_rate/2.0)-1000)
 
 
+class TestAllPassFilter(unittest.TestCase):
+
+    def setUp(self):
+        self.sample_rate = 48000
+        self.block_size = 512
+        self.delta = (1.0 / self.block_size) * self.sample_rate
+        self.fc = 100
+        self.q = 1
+        self.apf = yodel.filter.Biquad()
+        self.input_signal = [0] * self.block_size
+        self.output_signal = [0] * self.block_size
+        self.input_signal[0] = 1
+
+    def tearDown(self):
+        pass
+
+    def common_test_cutoff(self, fc):
+        self.fc = fc
+        self.apf.all_pass(self.sample_rate, self.fc, self.q)
+        self._impulse_response = impulse_response(self.apf, self.block_size)
+        self._freq_response_real, self._freq_response_imag = frequency_response(self._impulse_response)
+        self._amplitude_response = amplitude_response(self._freq_response_real, self._freq_response_imag, False)
+
+        fc_approx = 0
+        prev = self._amplitude_response[0]
+        for i in range(1, int(self.block_size/2)-1):
+            self.assertAlmostEqual(self._amplitude_response[i], 1.0, places=1)
+
+    def test_cutoff_frequency(self):
+        self.common_test_cutoff(0)
+        self.common_test_cutoff(1)
+        self.common_test_cutoff(10)
+        self.common_test_cutoff(100)
+        self.common_test_cutoff(1000)
+        self.common_test_cutoff(10000)
+        self.common_test_cutoff(20000)
+        self.common_test_cutoff(int(self.sample_rate/2.0)-1000)
+
+
 class TestNotchFilter(unittest.TestCase):
 
     def setUp(self):
