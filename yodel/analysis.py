@@ -1,5 +1,4 @@
 import math
-import array
 
 
 class DFT:
@@ -31,8 +30,8 @@ class DFT:
         Generate internal lookup tables for trigonometric functions (sin, cos)
         """
         table_size = self.size * self.size
-        self.cos_table = array.array('f', [0] * table_size)
-        self.sin_table = array.array('f', [0] * table_size)
+        self.cos_table = [0] * table_size
+        self.sin_table = [0] * table_size
         two_pi = 2.0 * math.pi
         for i in range(0, table_size):
             self.cos_table[i] = math.cos(two_pi * i / self.size)
@@ -101,8 +100,8 @@ class FFT:
         Generate internal lookup tables for trigonometric functions (sin, cos)
         """
         table_size = self.size
-        self.cos_table = array.array('f', [0] * table_size)
-        self.sin_table = array.array('f', [0] * table_size)
+        self.cos_table = [0] * table_size
+        self.sin_table = [0] * table_size
         for i in range(1, table_size):
             self.cos_table[i] = math.cos(math.pi / i)
             self.sin_table[i] = math.sin(math.pi / i)
@@ -252,6 +251,15 @@ class AnalysisWindow:
 
         :param size: length of the analysis window
         """
+        self.rectangular(size)
+
+    def rectangular(self, size):
+        """
+        Make a rectangular (flat) window. This type of window does not have
+        any affect when applied on an input signal.
+
+        :param size: length of the analysis window
+        """
         self._resize(size)
 
     def hanning(self, size):
@@ -309,4 +317,4 @@ class AnalysisWindow:
         :param size: new length of the analysis window
         """
         self.size = size
-        self.signal = array.array('f', [1] * self.size)
+        self.signal = [1.0] * self.size
