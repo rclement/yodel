@@ -25,8 +25,8 @@ class Biquad:
         """
         Make the filter inactive with a flat frequency response.
         """
-        self._a_coeffs = array.array('f', [0] * 3)
-        self._b_coeffs = array.array('f', [0] * 3)
+        self._a_coeffs = [0.0, 0.0, 0.0]
+        self._b_coeffs = [1.0, 0.0, 0.0]
         self._x1 = 0.0
         self._x2 = 0.0
         self._y1 = 0.0

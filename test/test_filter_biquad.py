@@ -1,6 +1,7 @@
 import unittest
 import array
 import math
+import random
 import yodel.filter
 import yodel.analysis
 import yodel.conversion
@@ -423,6 +424,44 @@ class TestCustomFilter(unittest.TestCase):
 
     def test_custom_coefficients(self):
         self.common_test_custom_coefficients([0.72, 1.1, 2.09], [0.0, 0.01, 12])
+
+
+class TestFlatFilter(unittest.TestCase):
+
+    def setUp(self):
+        self.sample_rate = 48000
+        self.block_size = 512
+        self.delta = (1.0 / self.block_size) * self.sample_rate
+        self.fc = 100
+        self.q = 1
+        self.dbgain = 0
+        self.ff = yodel.filter.Biquad()
+        self.input_signal = [0] * self.block_size
+        self.output_signal = [0] * self.block_size
+
+    def tearDown(self):
+        pass
+
+    def common_check_flat_response(self):
+        self.ff.reset()
+        self.ff.process(self.input_signal, self.output_signal)
+        for i in range(0, self.block_size):
+            self.assertAlmostEqual(self.input_signal[i], self.output_signal[i])
+
+    def test_zero_signal(self):
+        self.common_check_flat_response()
+
+    def test_dirac_signal(self):
+        self.input_signal[0] = 1
+        self.common_check_flat_response()
+
+    def test_sine_signal(self):
+        self.input_signal = [math.sin(2.0 * math.pi * 100.0 * i / 48000.0) for i in range(0, self.block_size)]
+        self.common_check_flat_response()
+
+    def test_random_signal(self):
+        self.input_signal = [random.random() for i in range(0, self.block_size)]
+        self.common_check_flat_response()
 
 
 if __name__ == '__main__':
