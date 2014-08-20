@@ -2,6 +2,76 @@ import math
 import array
 
 
+class SinglePole:
+    """
+    A single pole filter is used to perform low-pass and high-pass filtering.
+    Signal attenuation is at a rate of 6 dB per octave.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
+    """
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        """
+        Create an inactive single pole filter with a flat frequency response.
+        To make the filter active, use one of the provided methods.
+        """
+        self._a0 = 1.0
+        self._a1 = 0.0
+        self._x1 = 0.0
+        self._b1 = 0.0
+        self._y1 = 0.0
+
+    def low_pass(self, samplerate, cutoff):
+        """
+        Make a low-pass filter.
+
+        :param samplerate: sample-rate in Hz
+        :param cutoff: cut-off frequency in Hz
+        """
+        self._b1 = math.exp(-2.0 * math.pi * cutoff / samplerate)
+        self._a0 = 1.0 - self._b1
+        self._a1 = 0.0
+
+    def high_pass(self, samplerate, cutoff):
+        """
+        Make a high-pass filter.
+
+        :param samplerate: sample-rate in Hz
+        :param cutoff: cut-off frequency in Hz
+        """
+        self._b1 = math.exp(-2.0 * math.pi * cutoff / samplerate)
+        self._a0 = 0.5 * (1.0 + self._b1)
+        self._a1 = - self._a0
+
+    def process_sample(self, x):
+        """
+        Filter a single sample and return the filtered sample.
+
+        :param x: input sample
+        :rtype: filtered sample
+        """
+        y = self._a0 * x + self._a1 * self._x1 + self._b1 * self._y1
+        self._y1 = y
+        self._x1 = x
+        return y
+
+    def process(self, x, y):
+        """
+        Filter an input signal. Can be used for in-place filtering.
+
+        :param x: input buffer
+        :param y: output buffer
+        """
+        num_samples = len(x)
+        for n in range(0, num_samples):
+            y[n] = self.process_sample(x[n])
+
+
 class Biquad:
     """
     A biquad filter is a 2-poles/2-zeros filter allowing to perform
