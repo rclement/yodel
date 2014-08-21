@@ -238,7 +238,7 @@ class FFT:
             real_signal[i] = (tmp_real[i] + tmp_imag[i]) / n
 
 
-class AnalysisWindow:
+class Window:
     """
     An analysis window function allows to reduce unwanted frequencies
     when performing spectrum analysis.

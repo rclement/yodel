@@ -7,7 +7,7 @@ class TestAnalysisWindow(unittest.TestCase):
 
     def setUp(self):
         self.block_size = 512
-        self.win = yodel.analysis.AnalysisWindow(self.block_size)
+        self.win = yodel.analysis.Window(self.block_size)
 
     def tearDown(self):
         pass
