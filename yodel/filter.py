@@ -326,3 +326,73 @@ class Biquad:
         self._sin_w0 = math.sin(self._w0)
         self._alpha = self._sin_w0 / (2.0 * self._q)
         self._sqrtAlpha = 2.0 * math.sqrt(self._a) * self._alpha
+
+
+class StateVariable:
+    """
+    A state variable filter provides simultaneously low-pass, high-pass,
+    band-pass and band-reject filtering. Like the :py:class:`Biquad` filter,
+    signal attenuation is at a rate of 12 dB per octave. Nevertheless, the
+    filter becomes unstable at higher frequencies (around one sixth of the
+    sample-rate).
+    """
+
+    def __init__(self):
+        """
+        Create an inactive state variable filter with a flat frequency
+        response. To make the filter active, use one of the provided methods.
+        """
+        self.reset()
+
+    def reset(self):
+        """
+        Make the filter inactive with a flat frequency response.
+        """
+        self._f = 0
+        self._q = 0
+        self._x1 = 0
+        self._x2 = 0
+
+    def set(self, samplerate, cutoff, resonance):
+        """
+        Specify the parameters of the filter.
+
+        :param samplerate: sample-rate in Hz
+        :param cutoff: cut-off frequency in Hz
+        :param resonance: resonance or Q-factor
+        """
+        self._f = 2.0 * math.sin(math.pi * cutoff / samplerate)
+        self._q = 1.0 / resonance
+
+    def process_sample(self, x):
+        """
+        Filter a single sample and return the filtered samples.
+
+        :param x: input sample
+        :rtype: tuple (high-pass, band-pass, low-pass, band-reject)
+        """
+        hp = x - (self._q * self._x1) - self._x2
+        bp = hp * self._f + self._x1
+        lp = self._x1 * self._f + self._x2
+        br = hp + lp
+        self._x1 = bp
+        self._x2 = lp
+        return (hp, bp, lp, br)
+
+    def process(self, x, hp, bp, lp, br):
+        """
+        Filter an input signal. Can be used for in-place filtering.
+
+        :param x: input buffer
+        :param hp: high-pass filtered output
+        :param bp: band-pass filtered output
+        :param lp: low-pass filtered output
+        :param br: band-reject filtered output
+        """
+        num_samples = len(x)
+        for n in range(0, num_samples):
+            (hps, bps, lps, brs) = self.process_sample(x[n])
+            hp[n] = hps
+            bp[n] = bps
+            lp[n] = lps
+            br[n] = brs
