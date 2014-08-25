@@ -91,10 +91,11 @@ class StateVariableSelector:
         else:
             self._l_fc, = self._ax.plot([self.fc] * int(2.0 * self.nfft), [(180*i/self.nfft) for i in range(-self.nfft, self.nfft)], 'k')
 
-        self._l_fr_hp, = self._ax.plot(self._x_axis, self._y_axis_hp, 'b')
-        self._l_fr_lp, = self._ax.plot(self._x_axis, self._y_axis_lp, 'r')
-        self._l_fr_bp, = self._ax.plot(self._x_axis, self._y_axis_bp, 'g')
-        self._l_fr_br, = self._ax.plot(self._x_axis, self._y_axis_br, 'y')
+        self._l_fr_hp, = self._ax.plot(self._x_axis, self._y_axis_hp, 'b', label='High-Pass')
+        self._l_fr_lp, = self._ax.plot(self._x_axis, self._y_axis_lp, 'r', label='Low-Pass')
+        self._l_fr_bp, = self._ax.plot(self._x_axis, self._y_axis_bp, 'g', label='Band-Pass')
+        self._l_fr_br, = self._ax.plot(self._x_axis, self._y_axis_br, 'y', label='Band-Reject')
+        plt.legend()
 
         self._rescale_plot()
 
