@@ -1,3 +1,7 @@
+"""
+This module provides utility functions for complex numbers.
+"""
+
 import math
 
 

@@ -1,3 +1,7 @@
+"""
+This module provides classes for audio signal filtering.
+"""
+
 import math
 import array
 

@@ -1,3 +1,8 @@
+"""
+This module provides classes for audio signal analysis such as spectral
+analysis.
+"""
+
 import math
 
 

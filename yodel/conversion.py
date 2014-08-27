@@ -1,3 +1,7 @@
+"""
+This module provides utility functions for various math conversions.
+"""
+
 import math
 
 
