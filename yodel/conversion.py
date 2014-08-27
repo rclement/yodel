@@ -5,24 +5,24 @@ This module provides utility functions for various math conversions.
 import math
 
 
-def lin2db(lin):
+def lin2db(linval):
     """
     Convert a linear value to the decibel (dB) scale.
 
-    :param lin: linear value
+    :param linval: linear value
     :rtype: decibel value
     """
-    if lin > 1e-5:
-        return 20.0 * math.log10(lin)
+    if linval > 1e-5:
+        return 20.0 * math.log10(linval)
     else:
         return -100.0
 
 
-def db2lin(db):
+def db2lin(dbval):
     """
     Convert a decibel (dB) value to the linear scale.
 
-    :param db: decibel value
+    :param dbval: decibel value
     :rtype: linear value
     """
-    return math.pow(10, db / 20.0)
+    return math.pow(10, dbval / 20.0)
