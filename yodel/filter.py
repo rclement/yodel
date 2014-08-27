@@ -13,6 +13,11 @@ class SinglePole:
     """
 
     def __init__(self):
+        """
+        Create an inactive single pole filter with a flat frequency response.
+        To make the filter active, use one of the provided methods:
+        :py:meth:`low_pass` and :py:meth:`high_pass`.
+        """
         self.reset()
 
     def reset(self):
@@ -87,7 +92,10 @@ class Biquad:
     def __init__(self):
         """
         Create an inactive biquad filter with a flat frequency response.
-        To make the filter active, use one of the provided methods.
+        To make the filter active, use one of the provided methods:
+        :py:meth:`low_pass`, :py:meth:`high_pass`, :py:meth:`band_pass`,
+        :py:meth:`all_pass`, :py:meth:`notch`, :py:meth:`peak`,
+        :py:meth:`low_shelf`, :py:meth:`high_shelf` and :py:meth:`custom`.
         """
         self.reset()
 
@@ -340,7 +348,7 @@ class StateVariable:
     def __init__(self):
         """
         Create an inactive state variable filter with a flat frequency
-        response. To make the filter active, use one of the provided methods.
+        response. To make the filter active, use the :py:meth:`set` method.
         """
         self.reset()
 
