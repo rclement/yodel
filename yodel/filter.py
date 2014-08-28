@@ -407,3 +407,60 @@ class StateVariable:
             bp[n] = bps
             lp[n] = lps
             br[n] = brs
+
+
+class ParametricEQ:
+    """
+    A parametric equalizer provides multi-band equalization of audio signals.
+    The center frequency, the resonance and the amplification (in dB) can be
+    controlled individually for each frequency band.
+    """
+
+    def __init__(self, samplerate, bands):
+        """
+        Create a parametric equalizer with a given number of frequency bands.
+
+        :param samplerate: sample-rate in Hz
+        :param bands: number of bands (at least 2)
+        """
+        self.samplerate = samplerate
+
+        if bands < 2:
+            self.num_bands = 2
+        else:
+            self.num_bands = bands
+
+        self.filters = []
+        self.filters.append(Biquad())
+        for i in range(1, self.num_bands-1):
+            self.filters.append(Biquad())
+        self.filters.append(Biquad())
+
+    def set_band(self, band, center, resonance, dbgain):
+        """
+        Change the parameters for the selected frequency band.
+
+        :param band: index of the band (from 0 to (total number of bands - 1))
+        :param cutoff: cut-off frequency in Hz
+        :param resonance: resonance or Q-factor
+        :param dbgain: gain in dB
+        """
+        if band == 0:
+            self.filters[band].low_shelf(self.samplerate, center, resonance,
+                                         dbgain)
+        elif band > 0 and band < (self.num_bands-1):
+            self.filters[band].peak(self.samplerate, center, resonance, dbgain)
+        elif band == (self.num_bands-1):
+            self.filters[band].high_shelf(self.samplerate, center, resonance,
+                                          dbgain)
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal. Can be used for in-place filtering.
+
+        :param input_signal: input buffer
+        :param output_signal: filtered buffer
+        """
+        self.filters[0].process(input_signal, output_signal)
+        for i in range(1, self.num_bands):
+            self.filters[i].process(output_signal, output_signal)
