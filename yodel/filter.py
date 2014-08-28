@@ -3,7 +3,6 @@ This module provides classes for audio signal filtering.
 """
 
 import math
-import array
 
 
 class SinglePole:
@@ -224,7 +223,7 @@ class Biquad:
         self._a_coeffs[0] = ((self._a + 1) +
                              (self._a - 1) * self._cos_w0 + self._sqrtAlpha)
         self._a_coeffs[1] = ((-2.0 * ((self._a - 1) +
-                             (self._a + 1) * self._cos_w0)) /
+                                      (self._a + 1) * self._cos_w0)) /
                              self._a_coeffs[0])
         self._a_coeffs[2] = (((self._a + 1) +
                               (self._a - 1) * self._cos_w0 - self._sqrtAlpha) /
