@@ -108,12 +108,13 @@ class StateVariableSelector:
         self._sqax = plt.axes([0.6, 0.12, 0.2, 0.03])
 
         self._fcslider = Slider(self._sfax, 'Cut-off frequency', 0, self.fs/5, valinit = self.fc)
-        self._qslider = Slider(self._sqax, 'Q factor', 0.1, 1.5, valinit = self.q)
+        self._qslider = Slider(self._sqax, 'Q factor', 0.5, 1.5, valinit = self.q)
 
         self._fcslider.on_changed(self.set_biquad_frequency_cutoff)
         self._qslider.on_changed(self.set_biquad_q_factor)
 
     def update_filter(self):
+        self.flt.reset()
         self.flt.set(self.fs, self.fc, self.q)
 
     def set_biquad_frequency_cutoff(self, fc):
