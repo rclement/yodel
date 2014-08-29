@@ -76,13 +76,7 @@ class ParametricEQSelector:
         self._x_axis = [i*(self._fs/2/self._nfft) for i in range(0, self._nfft)]
         self._y_axis = self._response[0:self._nfft]
 
-        if self._plot_db:
-            self._l_bot, = self._ax.plot(self._x_axis, [-100] * self._nfft, 'k')
-            self._l_top, = self._ax.plot(self._x_axis, [0] * self._nfft, 'k')
-        else:
-            self._l_bot, = self._ax.plot(self._x_axis, [- 180] * self._nfft, 'k')
-            self._l_top, = self._ax.plot(self._x_axis, [180] * self._nfft, 'k')
-
+        self._l_center, = self._ax.plot(self._x_axis, [0] * self._nfft, 'k')
         self._l_fr, = self._ax.plot(self._x_axis, self._y_axis, 'b')
 
         self._rescale_plot()
@@ -112,7 +106,7 @@ class ParametricEQSelector:
 
     def _rescale_plot(self):
         if self._plot_db:
-            self._ax.set_ylim(-110, 20)
+            self._ax.set_ylim(-30, 30)
         else:
             self._ax.set_ylim(- 200, 200)
         plt.draw()
@@ -125,12 +119,7 @@ class ParametricEQSelector:
             plt.draw()
 
     def _plot_range_limits(self, redraw=True):
-        if self._plot_db:
-            self._l_bot.set_ydata([-100] * self._nfft)
-            self._l_top.set_ydata([0] * self._nfft)
-        else:
-            self._l_bot.set_ydata([- 180] * self._nfft)
-            self._l_top.set_ydata([180] * self._nfft)
+        self._l_center.set_ydata([0] * self._nfft)
         if redraw:
             plt.draw()
 
