@@ -11,16 +11,32 @@ for digital audio signal processing, analysis and synthesis.
 It is meant to provide a comprehensive set of tools to manipulate audio signals.
 It can be used for prototyping as well as developing audio applications in Python.
 
+Features
+========
+
+* Analysis:
+
+    * Discrete Fourier Transform
+    * Fast Fourier Transform
+    * Windowing: Hamming, Hanning, Blackman
+
+* Filtering:
+
+    * Single Pole: low-pass, high-pass
+    * Biquad: low-pass, high-pass, band-pass, all-pass, notch, peak, low-shelf, high-shelf
+    * State Variable: low-pass, high-pass, band-pass, band-reject
+    * Parametric Equalizer
+
 Installation
 ============
 
-`pip install yodel`
+Simply run: `pip install yodel`
 
 Documentation
 =============
 
 The complete API documentation can be found at [ReadTheDocs](http://yodel.readthedocs.org/en/latest/).
-For code examples, check out the 'demo' folder inside the project repository.
+For code examples, check out the `demo` folder inside the project repository.
 
 Contact
 =======
