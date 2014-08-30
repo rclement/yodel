@@ -92,7 +92,7 @@ class FourierAnalysisDemo:
         self.amplitude = dcv.db2lin(0)
         self.signaltype = 'Sine'
         self.fft_size = 512
-        self.window = da.AnalysisWindow(self.fft_size)
+        self.window = da.Window(self.fft_size)
         self.fft = da.FFT(self.fft_size)
 
         self._generate_signal()
@@ -110,7 +110,7 @@ class FourierAnalysisDemo:
 
     def set_window_type(self, windowtype):
         if windowtype == 'Flat':
-            self.window = da.AnalysisWindow(self.fft_size)
+            self.window.rectangular(self.fft_size)
         elif windowtype == 'Hanning':
             self.window.hanning(self.fft_size)
         elif windowtype == 'Hamming':

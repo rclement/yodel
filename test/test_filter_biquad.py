@@ -1,6 +1,7 @@
 import unittest
 import array
 import math
+import random
 import yodel.filter
 import yodel.analysis
 import yodel.conversion
@@ -161,6 +162,45 @@ class TestBandPassFilter(unittest.TestCase):
                 prev = curr
 
         self.assertAlmostEqual(self.fc, fc_approx, delta=self.delta)
+
+    def test_cutoff_frequency(self):
+        self.common_test_cutoff(0)
+        self.common_test_cutoff(1)
+        self.common_test_cutoff(10)
+        self.common_test_cutoff(100)
+        self.common_test_cutoff(1000)
+        self.common_test_cutoff(10000)
+        self.common_test_cutoff(20000)
+        self.common_test_cutoff(int(self.sample_rate/2.0)-1000)
+
+
+class TestAllPassFilter(unittest.TestCase):
+
+    def setUp(self):
+        self.sample_rate = 48000
+        self.block_size = 512
+        self.delta = (1.0 / self.block_size) * self.sample_rate
+        self.fc = 100
+        self.q = 1
+        self.apf = yodel.filter.Biquad()
+        self.input_signal = [0] * self.block_size
+        self.output_signal = [0] * self.block_size
+        self.input_signal[0] = 1
+
+    def tearDown(self):
+        pass
+
+    def common_test_cutoff(self, fc):
+        self.fc = fc
+        self.apf.all_pass(self.sample_rate, self.fc, self.q)
+        self._impulse_response = impulse_response(self.apf, self.block_size)
+        self._freq_response_real, self._freq_response_imag = frequency_response(self._impulse_response)
+        self._amplitude_response = amplitude_response(self._freq_response_real, self._freq_response_imag, False)
+
+        fc_approx = 0
+        prev = self._amplitude_response[0]
+        for i in range(1, int(self.block_size/2)-1):
+            self.assertAlmostEqual(self._amplitude_response[i], 1.0, places=1)
 
     def test_cutoff_frequency(self):
         self.common_test_cutoff(0)
@@ -423,6 +463,44 @@ class TestCustomFilter(unittest.TestCase):
 
     def test_custom_coefficients(self):
         self.common_test_custom_coefficients([0.72, 1.1, 2.09], [0.0, 0.01, 12])
+
+
+class TestFlatFilter(unittest.TestCase):
+
+    def setUp(self):
+        self.sample_rate = 48000
+        self.block_size = 512
+        self.delta = (1.0 / self.block_size) * self.sample_rate
+        self.fc = 100
+        self.q = 1
+        self.dbgain = 0
+        self.ff = yodel.filter.Biquad()
+        self.input_signal = [0] * self.block_size
+        self.output_signal = [0] * self.block_size
+
+    def tearDown(self):
+        pass
+
+    def common_check_flat_response(self):
+        self.ff.reset()
+        self.ff.process(self.input_signal, self.output_signal)
+        for i in range(0, self.block_size):
+            self.assertAlmostEqual(self.input_signal[i], self.output_signal[i])
+
+    def test_zero_signal(self):
+        self.common_check_flat_response()
+
+    def test_dirac_signal(self):
+        self.input_signal[0] = 1
+        self.common_check_flat_response()
+
+    def test_sine_signal(self):
+        self.input_signal = [math.sin(2.0 * math.pi * 100.0 * i / 48000.0) for i in range(0, self.block_size)]
+        self.common_check_flat_response()
+
+    def test_random_signal(self):
+        self.input_signal = [random.random() for i in range(0, self.block_size)]
+        self.common_check_flat_response()
 
 
 if __name__ == '__main__':

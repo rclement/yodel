@@ -1,5 +1,9 @@
+"""
+This module provides classes for audio signal analysis such as spectral
+analysis.
+"""
+
 import math
-import array
 
 
 class DFT:
@@ -31,8 +35,8 @@ class DFT:
         Generate internal lookup tables for trigonometric functions (sin, cos)
         """
         table_size = self.size * self.size
-        self.cos_table = array.array('f', [0] * table_size)
-        self.sin_table = array.array('f', [0] * table_size)
+        self.cos_table = [0] * table_size
+        self.sin_table = [0] * table_size
         two_pi = 2.0 * math.pi
         for i in range(0, table_size):
             self.cos_table[i] = math.cos(two_pi * i / self.size)
@@ -101,8 +105,8 @@ class FFT:
         Generate internal lookup tables for trigonometric functions (sin, cos)
         """
         table_size = self.size
-        self.cos_table = array.array('f', [0] * table_size)
-        self.sin_table = array.array('f', [0] * table_size)
+        self.cos_table = [0] * table_size
+        self.sin_table = [0] * table_size
         for i in range(1, table_size):
             self.cos_table[i] = math.cos(math.pi / i)
             self.sin_table[i] = math.sin(math.pi / i)
@@ -239,7 +243,7 @@ class FFT:
             real_signal[i] = (tmp_real[i] + tmp_imag[i]) / n
 
 
-class AnalysisWindow:
+class Window:
     """
     An analysis window function allows to reduce unwanted frequencies
     when performing spectrum analysis.
@@ -249,6 +253,15 @@ class AnalysisWindow:
         """
         Initialize the analysis window. By default, a flat window is applied.
         Use one of the provided methods to make it Hanning or Hamming.
+
+        :param size: length of the analysis window
+        """
+        self.rectangular(size)
+
+    def rectangular(self, size):
+        """
+        Make a rectangular (flat) window. This type of window does not have
+        any affect when applied on an input signal.
 
         :param size: length of the analysis window
         """
@@ -309,4 +322,4 @@ class AnalysisWindow:
         :param size: new length of the analysis window
         """
         self.size = size
-        self.signal = array.array('f', [1] * self.size)
+        self.signal = [1.0] * self.size

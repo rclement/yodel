@@ -3,11 +3,11 @@ Description
 
 |Build Status| |Coverage Status| |ReadTheDocs Status| |PyPI|
 
-**Yodel** (*the Swiss Army knife for your sound*) is an easy-to-use
-python package for digital audio signal processing, analysis and
-synthesis. It is meant to provide a comprehensive set of tools to
-manipulate audio signals. It can be used for prototyping as well as
-developing audio applications in Python.
+`Yodel <http://www.romainclement.com/yodel>`__ (*the Swiss Army knife
+for your sound*) is an easy-to-use Python package for digital audio
+signal processing, analysis and synthesis. It is meant to provide a
+comprehensive set of tools to manipulate audio signals. It can be used
+for prototyping as well as developing audio applications in Python.
 
 Installation
 ============
@@ -29,6 +29,14 @@ contact@romainclement.com.
 
 Changelog
 =========
+
+Version 0.2.0
+-------------
+
+-  Fix flat frequency response for biquad filter
+-  Renaming 'AnalysisWindow' class to 'Window' in analysis module
+-  Better documentation (include classes constructors)
+-  New filters: single pole, state variable, parametric equalizer
 
 Version 0.1.2
 -------------
