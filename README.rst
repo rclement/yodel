@@ -30,6 +30,14 @@ contact@romainclement.com.
 Changelog
 =========
 
+Version 0.2.0
+-------------
+
+-  Fix flat frequency response for biquad filter
+-  Renaming 'AnalysisWindow' class to 'Window' in analysis module
+-  Better documentation (include classes constructors)
+-  New filters: single pole, state variable, parametric equalizer
+
 Version 0.1.2
 -------------
 
