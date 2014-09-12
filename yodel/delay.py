@@ -39,7 +39,7 @@ class DelayLine:
         for i in range(0, size):
             self.delayline[self.writepos] = input_signal[i]
             self.writepos = (self.writepos + 1) & self.mask
-            prev_idx = math.floor(self.readpos)
+            prev_idx = int(math.floor(self.readpos))
             next_idx = (prev_idx + 1) & self.mask
             frac_pos = self.readpos - prev_idx
             output_signal[i] = ((1.0 - frac_pos) * self.delayline[prev_idx] +

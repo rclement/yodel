@@ -26,9 +26,9 @@ class TestDelayLine(unittest.TestCase):
 
     def test_int_delay(self):
         delaysmp = int(self.block_size / 2.0)
-        delay = delaysmp * 1000 / self.samplerate
+        delay = delaysmp * 1000.0 / self.samplerate
         self.dly.set_delay(delay)
-        inbuffer = [math.sin(2.0*math.pi*100*i/self.samplerate) for i in range(1, self.block_size+1)]
+        inbuffer = [math.sin(2.0*math.pi*100.0*i/self.samplerate) for i in range(1, self.block_size+1)]
         outbuffer = [0] * self.block_size
 
         self.dly.process(inbuffer, outbuffer)

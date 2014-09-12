@@ -9,6 +9,7 @@ Submodules
    yodel.analysis
    yodel.complex
    yodel.conversion
+   yodel.delay
    yodel.filter
 
 Module contents
