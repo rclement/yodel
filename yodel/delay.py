@@ -28,6 +28,23 @@ class DelayLine:
         self.writepos = 0
         self.set_delay(delay)
 
+    def process_sample(self, input_sample):
+        """
+        Delay an input sample by the current amount of delay.
+
+        :param input_signal: sample to be delayed
+        :return: resulting delayed sample
+        """
+        self.delayline[self.writepos] = input_sample
+        self.writepos = (self.writepos + 1) & self.mask
+        prev_idx = int(math.floor(self.readpos))
+        next_idx = (prev_idx + 1) & self.mask
+        frac_pos = self.readpos - prev_idx
+        output_sample = ((1.0 - frac_pos) * self.delayline[prev_idx] +
+                         frac_pos * self.delayline[next_idx])
+        self.readpos = ((prev_idx + 1) & self.mask) + frac_pos
+        return output_sample
+
     def process(self, input_signal, output_signal):
         """
         Delay an input signal by the current amount of delay.
@@ -37,14 +54,7 @@ class DelayLine:
         """
         size = len(input_signal)
         for i in range(0, size):
-            self.delayline[self.writepos] = input_signal[i]
-            self.writepos = (self.writepos + 1) & self.mask
-            prev_idx = int(math.floor(self.readpos))
-            next_idx = (prev_idx + 1) & self.mask
-            frac_pos = self.readpos - prev_idx
-            output_signal[i] = ((1.0 - frac_pos) * self.delayline[prev_idx] +
-                                frac_pos * self.delayline[next_idx])
-            self.readpos = ((prev_idx + 1) & self.mask) + frac_pos
+            output_signal[i] = self.process_sample(input_signal[i])
 
     def set_delay(self, delay):
         """
