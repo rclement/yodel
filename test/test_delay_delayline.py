@@ -80,6 +80,19 @@ class TestDelayLine(unittest.TestCase):
         for i in range(0, self.block_size):
             self.assertEqual(inbuffer[i], outbuffer[i])
 
+    def test_clear_delayline(self):
+        delaysmp = int(self.block_size / 2.0)
+        delay = delaysmp * 1000.0 / self.samplerate
+        self.dly.set_delay(delay)
+        inbuffer = [math.sin(2.0*math.pi*100.0*i/self.samplerate) for i in range(1, self.block_size+1)]
+        outbuffer = [0] * self.block_size
+
+        self.dly.process(inbuffer, outbuffer)
+        self.dly.clear()
+
+        for i in range(0, self.block_size):
+            self.assertEqual(self.dly.delayline[i], 0)
+
 
 if __name__ == '__main__':
     unittest.main()

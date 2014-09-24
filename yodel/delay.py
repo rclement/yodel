@@ -28,6 +28,14 @@ class DelayLine:
         self.writepos = 0
         self.set_delay(delay)
 
+    def clear(self):
+        """
+        Clear the current samples in the delayline with zeros.
+        Every other state is kept (current delay, max delay).
+        """
+        for i in range(0, self.length):
+            self.delayline[i] = 0
+
     def process_sample(self, input_sample):
         """
         Delay an input sample by the current amount of delay.
