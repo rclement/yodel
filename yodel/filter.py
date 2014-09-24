@@ -3,6 +3,7 @@ This module provides classes for audio signal filtering.
 """
 
 import math
+import yodel.delay
 
 
 class SinglePole:
@@ -464,3 +465,147 @@ class ParametricEQ:
         self.filters[0].process(input_signal, output_signal)
         for i in range(1, self.num_bands):
             self.filters[i].process(output_signal, output_signal)
+
+
+class Comb:
+    """
+    A comb filter combines the input signal with a delayed copy of itself.
+    Three types are available: feedback, feedforward and allpass.
+
+    *References:*
+        "Physical Audio Signal Processing",
+        Julius O. Smith
+        (https://ccrma.stanford.edu/~jos/pasp/Comb_Filters.html)
+
+        "Introduction to Computer Music",
+        Nick Collins
+    """
+
+    def __init__(self, samplerate, delay, gain):
+        """
+        Create a comb filter. By default, it is an allpass but one can select
+        another type with :py:meth:`feedback`, :py:meth:`feedforward` and
+        :py:meth:`allpass` methods.
+
+        :param samplerate: sample-rate in Hz
+        :param delay: delay in ms
+        :param gain: gain between -1 and +1
+        """
+        self.samplerate = samplerate
+        self.delayline = yodel.delay.DelayLine(samplerate, 1000, delay)
+        self.gain = 0
+        self.x1 = 0
+        self.y1 = 0
+        self.__combfunc = None
+        self.allpass(delay, gain)
+        self.reset()
+
+    def reset(self):
+        """
+        Clear the current comb filter state.
+        """
+        self.delayline.clear()
+        self.x1 = 0
+        self.y1 = 0
+
+    def feedback(self, delay, gain):
+        """
+        Make a feedback comb filter.
+
+        :param delay: delay in ms
+        :param gain: gain between -1 and + 1
+        """
+        realdly = (((delay * self.samplerate / 1000.0) - 1.0) *
+                   1000.0 / self.samplerate)
+        self.set_delay(realdly)
+        self.set_gain(gain)
+        self.__combfunc = self.__feedback
+
+    def feedforward(self, delay, gain):
+        """
+        Make a feedforward comb filter.
+
+        :param delay: delay in ms
+        :param gain: gain between -1 and + 1
+        """
+        self.set_delay(delay)
+        self.set_gain(gain)
+        self.__combfunc = self.__feedforward
+
+    def allpass(self, delay, gain):
+        """
+        Make a feedforward comb filter.
+
+        :param delay: delay in ms
+        :param gain: gain between -1 and + 1
+        """
+        self.set_delay(delay)
+        self.set_gain(gain)
+        self.__combfunc = self.__allpass
+
+    def set_delay(self, delay):
+        """
+        Change the current delay of the comb filter.
+
+        :param delay: delay in ms
+        """
+        self.delayline.set_delay(delay)
+
+    def set_gain(self, gain):
+        """
+        Change the current gain of the comb filter.
+
+        :param gain: gain between -1 and + 1
+        """
+        self.gain = gain
+
+    def __feedback(self, input_sample):
+        """
+        Feedback comb filtering.
+
+        :param input_sample: input sample
+        :return: filtered sample
+        """
+        return (input_sample +
+                self.gain * self.delayline.process_sample(self.y1))
+
+    def __feedforward(self, input_sample):
+        """
+        Feedforward comb filtering.
+
+        :param input_sample: input sample
+        :return: filtered sample
+        """
+        return (input_sample +
+                self.gain * self.delayline.process_sample(input_sample))
+
+    def __allpass(self, input_sample):
+        """
+        All-pass comb filtering.
+
+        :param input_sample: input sample
+        :return: filtered sample
+        """
+        return (self.gain * input_sample - self.gain * self.y1 + self.x1)
+
+    def process_sample(self, input_sample):
+        """
+        Filter a single sample.
+
+        :param input_sample: input sample
+        :return: filtered sample
+        """
+        return self.__combfunc(input_sample)
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal.
+
+        :param input_signal: input signal
+        :param output_signal: filtered signal
+        """
+        size = len(input_signal)
+        for i in range(0, size):
+            output_signal[i] = self.process_sample(input_signal[i])
+            self.x1 = input_signal[i]
+            self.y1 = output_signal[i]
