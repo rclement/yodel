@@ -609,3 +609,66 @@ class Comb:
             output_signal[i] = self.process_sample(input_signal[i])
             self.x1 = input_signal[i]
             self.y1 = output_signal[i]
+
+
+class Convolution:
+    """
+    The convolution filter performs FIR filtering using a provided impulse
+    response signal.
+    """
+
+    def __init__(self, framesize, impulse_response):
+        """
+        Create a convolution filter.
+
+        :param framesize: framesize of input buffers to be filtered
+        :param impulse_response: the impulse response signal to used
+        """
+        self.framesize = framesize
+        self.impulse_response = impulse_response
+        self.irsize = len(impulse_response)
+        self.convsize = self.framesize + self.irsize - 1
+        self.olapsize = self.convsize - self.framesize
+        self.conv = [0] * self.convsize
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal with the impulse response.
+        The length of the input signal must be the one defined at filter
+        creation.
+
+        The filtered output signal will be of the same length. The 'tail' of
+        the convolution will be added to the beginning of the next filtered
+        signal.
+
+        To obtain the 'tail' of the convolution without filtering another
+        signal, simply process an input signal filled with zeros.
+
+        :param input_signal: input signal to be filtered
+        :param output_signal: filtered signal
+        """
+        for i in range(0, self.framesize):
+            for j in range(0, self.irsize):
+                self.conv[i + j] += input_signal[i] * self.impulse_response[j]
+
+        if self.olapsize <= self.framesize:
+            for i in range(0, self.olapsize):
+                output_signal[i] = self.conv[i]
+                self.conv[i] = self.conv[i+self.framesize]
+
+            for i in range(self.olapsize, self.framesize):
+                output_signal[i] = self.conv[i]
+                self.conv[i] = 0
+
+            for i in range(self.framesize, self.convsize):
+                self.conv[i] = 0
+        else:
+            for i in range(0, self.framesize):
+                output_signal[i] = self.conv[i]
+                self.conv[i] = self.conv[i+self.framesize]
+
+            for i in range(self.framesize, self.olapsize):
+                self.conv[i] = self.conv[i+self.framesize]
+
+            for i in range(self.olapsize, self.convsize):
+                self.conv[i] = 0
