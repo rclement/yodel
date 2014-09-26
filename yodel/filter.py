@@ -688,7 +688,7 @@ class FastConvolution:
     """
     The fast convolution filter performs FIR filtering using a provided impulse
     response signal.
-    
+
     This filter uses a faster algorithm than standard :py:class:`Convolution`,
     based on the :py:class:`yodel.analysis.FFT`.
 
