@@ -66,10 +66,10 @@ class CommonConvolutionTest:
         self.output = [0] * self.signal_length
         self.fir.process(self.signal, self.output)
 
-        self.assertEqual(self.ir[0] * self.signal[0], self.output[0])
-        self.assertEqual(self.ir[1] * self.signal[1], self.output[1])
+        self.assertAlmostEqual(self.ir[0] * self.signal[0], self.output[0])
+        self.assertAlmostEqual(self.ir[1] * self.signal[1], self.output[1])
         for i in range(self.ir_length - 1, self.signal_length):
-            self.assertEqual(self.signal[i - self.ir_length + 1], self.output[i])
+            self.assertAlmostEqual(self.signal[i - self.ir_length + 1], self.output[i])
 
     def test_delay_scale_ir(self):
         self.ir_length = 3
@@ -83,10 +83,10 @@ class CommonConvolutionTest:
         self.output = [0] * self.signal_length
         self.fir.process(self.signal, self.output)
 
-        self.assertEqual(self.ir[0] * self.signal[0], self.output[0])
-        self.assertEqual(self.ir[1] * self.signal[1], self.output[1])
+        self.assertAlmostEqual(self.ir[0] * self.signal[0], self.output[0])
+        self.assertAlmostEqual(self.ir[1] * self.signal[1], self.output[1])
         for i in range(self.ir_length - 1, self.signal_length):
-            self.assertEqual(0.5 * self.signal[i - self.ir_length + 1], self.output[i])
+            self.assertAlmostEqual(0.5 * self.signal[i - self.ir_length + 1], self.output[i])
 
     def test_overlapping_echo_ir(self):
         self.ir_length = 3
@@ -96,20 +96,19 @@ class CommonConvolutionTest:
         self.ir[2] = 0.5
 
         self.fir = self.create_convolution_filter(self.signal_length, self.ir)
-
         self.output = [0] * (self.signal_length)
         self.fir.process(self.signal, self.output)
 
-        self.assertEqual(self.signal[0], self.output[0])
-        self.assertEqual(self.signal[1], self.output[1])
+        self.assertAlmostEqual(self.signal[0], self.output[0])
+        self.assertAlmostEqual(self.signal[1], self.output[1])
         for i in range(self.ir_length - 1, self.signal_length):
-            self.assertEqual(0.5 * self.signal[i - self.ir_length + 1] + self.signal[i], self.output[i])
+            self.assertAlmostEqual(0.5 * self.signal[i - self.ir_length + 1] + self.signal[i], self.output[i])
 
         self.output = [0] * (self.signal_length)
         self.fir.process([0]*self.signal_length, self.output)
 
-        self.assertEqual(0.5 * self.signal[2], self.output[0])
-        self.assertEqual(0.5 * self.signal[3], self.output[1])
+        self.assertAlmostEqual(0.5 * self.signal[2], self.output[0])
+        self.assertAlmostEqual(0.5 * self.signal[3], self.output[1])
 
     def test_non_overlapping_echo_ir(self):
         self.ir_length = 6
@@ -127,14 +126,14 @@ class CommonConvolutionTest:
         self.fir.process(self.signal, self.output)
 
         for i in range(0, self.signal_length):
-            self.assertEqual(self.signal[i], self.output[i])
+            self.assertAlmostEqual(self.signal[i], self.output[i])
 
         self.output = [0] * (self.signal_length)
         self.fir.process([0]*self.signal_length, self.output)
 
-        self.assertEqual(0, self.output[0])
+        self.assertAlmostEqual(0, self.output[0])
         for i in range(0, self.signal_length - 1):
-            self.assertEqual(0.5 * self.signal[i], self.output[i+1])
+            self.assertAlmostEqual(0.5 * self.signal[i], self.output[i+1])
 
 
 class TestConvolutionFilter(unittest.TestCase, CommonConvolutionTest):
@@ -147,6 +146,18 @@ class TestConvolutionFilter(unittest.TestCase, CommonConvolutionTest):
 
     def create_convolution_filter(self, framesize, ir):
         return yodel.filter.Convolution(framesize, ir)
+
+
+class TestFastConvolutionFilter(unittest.TestCase, CommonConvolutionTest):
+
+    def setUp(self):
+        CommonConvolutionTest.setUp(self)
+
+    def tearDown(self):
+        CommonConvolutionTest.tearDown(self)
+
+    def create_convolution_filter(self, framesize, ir):
+        return yodel.filter.FastConvolution(framesize, ir)
 
 
 if __name__ == '__main__':

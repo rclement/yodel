@@ -4,6 +4,7 @@ This module provides classes for audio signal filtering.
 
 import math
 import yodel.delay
+import yodel.analysis
 
 
 class SinglePole:
@@ -615,6 +616,15 @@ class Convolution:
     """
     The convolution filter performs FIR filtering using a provided impulse
     response signal.
+
+    *Warning:*
+        It should not be used in practice for computational reasons,
+        and should only be used for testing purposes. Instead, prefer
+        using the :py:class:`FastConvolution`.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
     """
 
     def __init__(self, framesize, impulse_response):
@@ -672,3 +682,96 @@ class Convolution:
 
             for i in range(self.olapsize, self.convsize):
                 self.conv[i] = 0
+
+
+class FastConvolution:
+    """
+    The fast convolution filter performs FIR filtering using a provided impulse
+    response signal.
+    
+    This filter uses a faster algorithm than standard :py:class:`Convolution`,
+    based on the :py:class:`yodel.analysis.FFT`.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
+    """
+
+    def __init__(self, framesize, impulse_response):
+        """
+        Create a fast convolution filter.
+
+        :param framesize: framesize of input buffers to be filtered
+        :param impulse_response: the impulse response signal to used
+        """
+        self.framesize = framesize
+        self.irsize = len(impulse_response)
+        self.convsize = self.framesize + self.irsize - 1
+        self.fftsize = 1 << int(math.ceil(math.log(self.convsize, 2)))
+        self.olapsize = self.convsize - self.framesize
+
+        self.ir = [0] * self.fftsize
+        self.ir_real = [0] * self.fftsize
+        self.ir_imag = [0] * self.fftsize
+        self.signal = [0] * self.fftsize
+        self.signal_real = [0] * self.fftsize
+        self.signal_imag = [0] * self.fftsize
+        self.olap = [0] * self.olapsize
+
+        for i in range(0, self.irsize):
+            self.ir[i] = impulse_response[i]
+
+        self.fft = yodel.analysis.FFT(self.fftsize)
+        self.fft.forward(self.ir, self.ir_real, self.ir_imag)
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal with the impulse response.
+        The length of the input signal must be the one defined at filter
+        creation.
+
+        The filtered output signal will be of the same length. The 'tail' of
+        the convolution will be added to the beginning of the next filtered
+        signal.
+
+        To obtain the 'tail' of the convolution without filtering another
+        signal, simply process an input signal filled with zeros.
+
+        :param input_signal: input signal to be filtered
+        :param output_signal: filtered signal
+        """
+        for i in range(0, self.framesize):
+            self.signal[i] = input_signal[i]
+
+        for i in range(self.framesize, self.fftsize):
+            self.signal[i] = 0
+
+        self.fft.forward(self.signal, self.signal_real, self.signal_imag)
+
+        for i in range(0, int((self.fftsize/2)+1)):
+            temp = (self.signal_real[i] * self.ir_real[i] -
+                    self.signal_imag[i] * self.ir_imag[i])
+            self.signal_imag[i] = (self.signal_real[i] * self.ir_imag[i] +
+                                   self.signal_imag[i] * self.ir_real[i])
+            self.signal_real[i] = temp
+
+        self.fft.inverse(self.signal_real, self.signal_imag, self.signal)
+
+        if self.olapsize <= self.framesize:
+            for i in range(0, self.olapsize):
+                output_signal[i] = self.signal[i] + self.olap[i]
+
+            for i in range(self.olapsize, self.framesize):
+                output_signal[i] = self.signal[i]
+
+            for i in range(self.framesize, self.convsize):
+                self.olap[i - self.framesize] = self.signal[i]
+        else:
+            for i in range(0, self.framesize):
+                output_signal[i] = self.signal[i] + self.olap[i]
+
+            for i in range(self.framesize, self.olapsize):
+                self.olap[i - self.framesize] = self.olap[i]
+
+            for i in range(self.olapsize, self.convsize):
+                self.olap[i - self.framesize] = self.signal[i]
