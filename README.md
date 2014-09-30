@@ -26,6 +26,8 @@ Features
     * Biquad: low-pass, high-pass, band-pass, all-pass, notch, peak, low-shelf, high-shelf
     * State Variable: low-pass, high-pass, band-pass, band-reject
     * Parametric Equalizer
+    * Comb: feedforward, feedback, all-pass
+    * Convolution: standard, fast
 
 Installation
 ============

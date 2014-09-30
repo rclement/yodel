@@ -25,6 +25,8 @@ Features
       low-shelf, high-shelf
    -  State Variable: low-pass, high-pass, band-pass, band-reject
    -  Parametric Equalizer
+   -  Comb: feedforward, feedback, all-pass
+   -  Convolution: standard, fast
 
 Installation
 ============
