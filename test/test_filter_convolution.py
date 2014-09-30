@@ -2,6 +2,16 @@ import unittest
 import yodel.filter
 
 
+def convolution(signal, ir):
+    irsize = len(ir)
+    signalsize = len(signal)
+    output = [0] * (signalsize + irsize - 1)
+    for i in range(0, signalsize):
+        for j in range(0, irsize):
+            output[i + j] += signal[i] * ir[j]
+    return output
+
+
 class CommonConvolutionTest:
 
     def setUp(self):
@@ -134,6 +144,35 @@ class CommonConvolutionTest:
         self.assertAlmostEqual(0, self.output[0])
         for i in range(0, self.signal_length - 1):
             self.assertAlmostEqual(0.5 * self.signal[i], self.output[i+1])
+
+    def test_long_ir_with_short_block(self):
+        self.ir = [1, 0, 0.5, 0, 0.25, 0, 0.125, 0, 0.678]
+        self.ir_length = len(self.ir)
+        self.signal = [1, 1]
+        self.signal_length = len(self.signal)
+        self.output = [0] * (self.ir_length + self.signal_length - 1)
+        outputtmp = [0] * self.signal_length
+        refconv = convolution(self.signal, self.ir)
+
+        self.fir = self.create_convolution_filter(self.signal_length, self.ir)
+         
+        n = int((self.ir_length + self.signal_length - 1) / self.signal_length)
+        rem = (self.ir_length + self.signal_length - 1) - (n * self.signal_length)
+        
+        for i in range(0, n):
+            if i == 0:
+                self.fir.process(self.signal, outputtmp)
+            else:
+                self.fir.process([0] * self.signal_length, outputtmp)
+            for j in range(0, self.signal_length):
+                self.output[i * self.signal_length + j] = outputtmp[j]
+        
+        self.fir.process([0] * self.signal_length, outputtmp)
+        for i in range(0, rem):
+            self.output[n * self.signal_length + i] = outputtmp[i]
+
+        for i in range(0, (self.ir_length + self.signal_length - 1)):
+            self.assertAlmostEqual(refconv[i], self.output[i]);
 
 
 class TestConvolutionFilter(unittest.TestCase, CommonConvolutionTest):

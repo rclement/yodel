@@ -640,6 +640,7 @@ class Convolution:
         self.convsize = self.framesize + self.irsize - 1
         self.olapsize = self.convsize - self.framesize
         self.conv = [0] * self.convsize
+        self.olap = [0] * self.olapsize
 
     def process(self, input_signal, output_signal):
         """
@@ -657,31 +658,31 @@ class Convolution:
         :param input_signal: input signal to be filtered
         :param output_signal: filtered signal
         """
+        for i in range(0, self.convsize):
+            self.conv[i] = 0
+
         for i in range(0, self.framesize):
             for j in range(0, self.irsize):
                 self.conv[i + j] += input_signal[i] * self.impulse_response[j]
 
         if self.olapsize <= self.framesize:
             for i in range(0, self.olapsize):
-                output_signal[i] = self.conv[i]
-                self.conv[i] = self.conv[i+self.framesize]
+                output_signal[i] = self.conv[i] + self.olap[i]
 
             for i in range(self.olapsize, self.framesize):
                 output_signal[i] = self.conv[i]
-                self.conv[i] = 0
 
             for i in range(self.framesize, self.convsize):
-                self.conv[i] = 0
+                self.olap[i - self.framesize] = self.conv[i]
         else:
             for i in range(0, self.framesize):
-                output_signal[i] = self.conv[i]
-                self.conv[i] = self.conv[i+self.framesize]
+                output_signal[i] = self.conv[i] + self.olap[i]
 
             for i in range(self.framesize, self.olapsize):
-                self.conv[i] = self.conv[i+self.framesize]
+                self.olap[i - self.framesize] = self.olap[i] + self.conv[i]
 
             for i in range(self.olapsize, self.convsize):
-                self.conv[i] = 0
+                self.olap[i - self.framesize] = self.conv[i]
 
 
 class FastConvolution:
@@ -771,7 +772,7 @@ class FastConvolution:
                 output_signal[i] = self.signal[i] + self.olap[i]
 
             for i in range(self.framesize, self.olapsize):
-                self.olap[i - self.framesize] = self.olap[i]
+                self.olap[i - self.framesize] = self.olap[i] + self.signal[i]
 
             for i in range(self.olapsize, self.convsize):
                 self.olap[i - self.framesize] = self.signal[i]
