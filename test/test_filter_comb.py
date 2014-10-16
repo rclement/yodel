@@ -100,3 +100,7 @@ class TestAllpassCombFilter(unittest.TestCase):
 
         for i in range(0, self.block_size):
             self.assertAlmostEqual(self._amplitude_response[i], 1.0)
+
+
+if __name__ == '__main__':
+    unittest.main()
