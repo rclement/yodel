@@ -776,3 +776,87 @@ class FastConvolution:
 
             for i in range(self.olapsize, self.convsize):
                 self.olap[i - self.framesize] = self.signal[i]
+
+
+class Custom:
+    """
+    A custom filter allows to design precisely the frequency response of a
+    digital filter. The filtering is then performed with a
+    :py:class:`FastConvolution` filter.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
+    """
+
+    def __init__(self, samplerate, framesize):
+        """
+        Create a custom filter with a flat frequency response.
+        By default, the filter has a latency of (framesize/2) samples.
+
+        :param samplerate: sample-rate in Hz
+        :param framesize: framesize of input buffers to be filtered
+        """
+        self.samplerate = samplerate
+        self.framesize = framesize
+        flatresp = [1] * int((framesize/2)+1)
+        self.design(flatresp, False)
+
+    def design(self, freqresponse, db=True):
+        """
+        Create the filter impulse response from the specified frequency
+        response.
+
+        The response must represent the desired spectrum, and of
+        size (Nfft/2+1). The latency of the filter will be of (Nfft/2) samples.
+
+        The values of the frequency bands can either be specified in linear
+        scale (1 being flat) or in dB scale (0 being flat).
+
+        :param freqresponse: desired frequency response
+        :param db: True if the frequency response is specified in dB
+        """
+        self.frsize = len(freqresponse)
+        self.fftsize = int((self.frsize-1) * 2)
+        self.latency = int(self.fftsize / 2)
+        self.fr_real = [0] * self.fftsize
+        self.fr_imag = [0] * self.fftsize
+        self.ir = [0] * self.fftsize
+        self.shifted_ir = [0] * self.fftsize
+
+        for i in range(0, self.frsize):
+            if db:
+                self.fr_real[i] = yodel.conversion.db2lin(freqresponse[i])
+            else:
+                self.fr_real[i] = freqresponse[i]
+
+        self.fft = yodel.analysis.FFT(self.fftsize)
+        self.fft.inverse(self.fr_real, self.fr_imag, self.ir)
+
+        for i in range(0, self.fftsize):
+            index = int(i + self.frsize) % self.fftsize
+            self.shifted_ir[index] = self.ir[i]
+
+        self.win = yodel.analysis.Window(self.fftsize)
+        self.win.blackman(self.fftsize)
+        self.win.process(self.shifted_ir, self.ir)
+
+        self.fir = FastConvolution(self.framesize, self.ir)
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal with the custom impulse response.
+        The length of the input signal must be the one defined at filter
+        creation.
+
+        As with :py:class:`Convolution`, the filtered output signal will be
+        of the same length. The 'tail' of the convolution will be added to the
+        beginning of the next filtered signal.
+
+        To obtain the 'tail' of the convolution without filtering another
+        signal, simply process an input signal filled with zeros.
+
+        :param input_signal: input signal to be filtered
+        :param output_signal: filtered signal
+        """
+        self.fir.process(input_signal, output_signal)
