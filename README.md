@@ -28,6 +28,7 @@ Features
     * Parametric Equalizer
     * Comb: feedforward, feedback, all-pass
     * Convolution: standard, fast
+    * Custom
 
 Installation
 ============
