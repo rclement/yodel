@@ -5,6 +5,7 @@ This module provides classes for audio signal filtering.
 import math
 import yodel.delay
 import yodel.analysis
+import yodel.conversion
 
 
 class SinglePole:
