@@ -28,6 +28,7 @@ Features
     * Parametric Equalizer
     * Comb: feedforward, feedback, all-pass
     * Convolution: standard, fast
+    * Windowed Sinc: low-pass, high-pass, band-pass, band-reject
     * Custom
 
 Installation

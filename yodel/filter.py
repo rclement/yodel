@@ -779,6 +779,128 @@ class FastConvolution:
                 self.olap[i - self.framesize] = self.signal[i]
 
 
+class WindowedSinc:
+    """
+    A windowed sinc filter allows to separate one frequency band from another,
+    using :py:meth:`low_pass`, :py:meth:`high_pass`, :py:meth:`band_pass` and
+    :py:meth:`band_reject` forms.
+    Windowing is done using a Blackman :py:class:`yodel.analysis.Window`.
+    The filtering is performed with a :py:class:`FastConvolution` filter.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
+    """
+
+    def __init__(self, samplerate, framesize):
+        """
+        Create a windowed sinc filter with a flat frequency response.
+
+        :param samplerate: sample-rate in Hz
+        :param framesize: framesize of input buffers to be filtered
+        """
+        self.samplerate = samplerate
+        self.framesize = framesize
+        self.cutoff = 0
+        self.kernelsize = 3
+        self.kernel = [0] * self.kernelsize
+        self.kernel[0] = 1
+        self.win = yodel.analysis.Window(self.kernelsize)
+        self.win.blackman(self.kernelsize)
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+    def low_pass(self, cutoff, bandwidth):
+        """
+        Make a low-pass filter with given cutoff frequency and bandwidth.
+        Lowering the bandwidth will increase the size of the kernel filter,
+        thus increasing the roll-off rate but also the computation cost.
+
+        :param cutoff: cut-off frequency in Hz
+        :param bandwidth: frequency band width in Hz
+        """
+        self.cutoff = cutoff
+        normcutoff = cutoff / self.samplerate
+        self.kernelsize = int(4.0 * self.samplerate / bandwidth)
+        self.kernel = [0] * self.kernelsize
+        kernelsizeon2 = self.kernelsize / 2.0
+
+        for i in range(0, self.kernelsize):
+            if i == kernelsizeon2:
+                self.kernel[i] = 2.0 * math.pi * normcutoff
+            else:
+                tmp = (i - kernelsizeon2)
+                self.kernel[i] = (math.sin(2.0 * math.pi * normcutoff * tmp)
+                                  / tmp)
+
+        self.win.blackman(self.kernelsize)
+        self.win.process(self.kernel, self.kernel)
+
+        norm = 0
+        for i in range(0, self.kernelsize):
+            norm += self.kernel[i]
+
+        for i in range(0, self.kernelsize):
+            self.kernel[i] /= norm
+
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+    def high_pass(self, cutoff, bandwidth):
+        """
+        Make a high-pass filter with given cutoff frequency and bandwidth.
+        Lowering the bandwidth will increase the size of the kernel filter,
+        thus increasing the roll-off rate but also the computation cost.
+
+        :param cutoff: cut-off frequency in Hz
+        :param bandwidth: frequency band width in Hz
+        """
+        self.low_pass(cutoff, bandwidth)
+
+        for i in range(0, self.kernelsize):
+            self.kernel[i] *= -1
+        self.kernel[int(self.kernelsize/2)] += 1
+
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+    def band_reject(self, center, bandwidth):
+        """
+        Make a band-reject filter with given center frequency and bandwidth.
+        Lowering the bandwidth will increase the size of the kernel filter,
+        thus increasing the roll-off rate but also the computation cost.
+
+        :param center: center frequency in Hz
+        :param bandwidth: frequency band width in Hz
+        """
+        self.low_pass(center - bandwidth/2.0, bandwidth/2.0)
+
+        lowpass = [0] * self.kernelsize
+        for i in range(0, self.kernelsize):
+            lowpass[i] = self.kernel[i]
+
+        self.high_pass(center + bandwidth/2.0, bandwidth/2.0)
+
+        for i in range(0, self.kernelsize):
+            self.kernel[i] += lowpass[i]
+
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+    def band_pass(self, center, bandwidth):
+        """
+        Make a band-pass filter with given center frequency and bandwidth.
+        Lowering the bandwidth will increase the size of the kernel filter,
+        thus increasing the roll-off rate but also the computation cost.
+
+        :param center: center frequency in Hz
+        :param bandwidth: frequency band width in Hz
+        """
+        self.band_reject(center, bandwidth)
+
+        for i in range(0, self.kernelsize):
+            self.kernel[i] *= -1
+        self.kernel[int(self.kernelsize/2)] += 1
+
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+
 class Custom:
     """
     A custom filter allows to design precisely the frequency response of a
