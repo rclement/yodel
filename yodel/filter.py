@@ -821,8 +821,10 @@ class WindowedSinc:
         self.cutoff = cutoff
         normcutoff = cutoff / self.samplerate
         self.kernelsize = int(4.0 * self.samplerate / bandwidth)
+        if (self.kernelsize % 2) == 0:
+            self.kernelsize += 1
         self.kernel = [0] * self.kernelsize
-        kernelsizeon2 = self.kernelsize / 2.0
+        kernelsizeon2 = int((self.kernelsize-1)/2)
 
         for i in range(0, self.kernelsize):
             if i == kernelsizeon2:
@@ -857,7 +859,7 @@ class WindowedSinc:
 
         for i in range(0, self.kernelsize):
             self.kernel[i] *= -1
-        self.kernel[int(self.kernelsize/2)] += 1
+        self.kernel[int((self.kernelsize-1)/2)] += 1
 
         self.conv = FastConvolution(self.framesize, self.kernel)
 
@@ -896,7 +898,7 @@ class WindowedSinc:
 
         for i in range(0, self.kernelsize):
             self.kernel[i] *= -1
-        self.kernel[int(self.kernelsize/2)] += 1
+        self.kernel[int((self.kernelsize-1)/2)] += 1
 
         self.conv = FastConvolution(self.framesize, self.kernel)
 

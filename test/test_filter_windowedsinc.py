@@ -45,7 +45,7 @@ class TestWindowedSincFilter(unittest.TestCase):
 
         self.flt.low_pass(fc, bw)
 
-        self.assertAlmostEqual(0.03, self.flt.kernel[int(self.flt.kernelsize/2.0)], delta=1e-5)
+        self.assertAlmostEqual(0.03, self.flt.kernel[int(self.flt.kernelsize/2.0)], delta=1e-3)
 
     def test_lowpass_2(self):
         fc = 0.04 * self.samplerate
@@ -53,7 +53,7 @@ class TestWindowedSincFilter(unittest.TestCase):
 
         self.flt.low_pass(fc, bw)
 
-        self.assertAlmostEqual(0.08, self.flt.kernel[int(self.flt.kernelsize/2.0)], delta=1e-5)
+        self.assertAlmostEqual(0.08, self.flt.kernel[int(self.flt.kernelsize/2.0)], delta=1e-3)
 
     def test_lowpass_3(self):
         fc = 0.04 * self.samplerate
@@ -61,7 +61,7 @@ class TestWindowedSincFilter(unittest.TestCase):
 
         self.flt.low_pass(fc, bw)
 
-        self.assertAlmostEqual(0.08, self.flt.kernel[int(self.flt.kernelsize/2.0)], delta=1e-5)
+        self.assertAlmostEqual(0.08, self.flt.kernel[int(self.flt.kernelsize/2.0)], delta=1e-3)
 
     def test_highpass_1(self):
         fc = 0.25 * self.samplerate
