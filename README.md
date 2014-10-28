@@ -31,6 +31,10 @@ Features
     * Windowed Sinc: low-pass, high-pass, band-pass, band-reject
     * Custom
 
+* Delay:
+
+    * Time-varying delayline
+
 Installation
 ============
 
@@ -49,6 +53,12 @@ Any questions or comments about Yodel? Let me know at [contact@romainclement.com
 
 Changelog
 =========
+
+Version 0.3.0
+-------------
+
+* New delay module with time-varying delayline
+* New filters: Comb, Convolution, FastConvolution, Custom, Windowed Sinc
 
 Version 0.2.0
 -------------
