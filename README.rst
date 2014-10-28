@@ -9,17 +9,42 @@ signal processing, analysis and synthesis. It is meant to provide a
 comprehensive set of tools to manipulate audio signals. It can be used
 for prototyping as well as developing audio applications in Python.
 
+Features
+========
+
+-  Analysis:
+
+   -  Discrete Fourier Transform
+   -  Fast Fourier Transform
+   -  Windowing: Hamming, Hanning, Blackman
+
+-  Filtering:
+
+   -  Single Pole: low-pass, high-pass
+   -  Biquad: low-pass, high-pass, band-pass, all-pass, notch, peak,
+      low-shelf, high-shelf
+   -  State Variable: low-pass, high-pass, band-pass, band-reject
+   -  Parametric Equalizer
+   -  Comb: feedforward, feedback, all-pass
+   -  Convolution: standard, fast
+   -  Windowed Sinc: low-pass, high-pass, band-pass, band-reject
+   -  Custom
+
+-  Delay:
+
+   -  Time-varying delayline
+
 Installation
 ============
 
-``pip install yodel``
+Simply run: ``pip install yodel``
 
 Documentation
 =============
 
 The complete API documentation can be found at
 `ReadTheDocs <http://yodel.readthedocs.org/en/latest/>`__. For code
-examples, check out the 'demo' folder inside the project repository.
+examples, check out the ``demo`` folder inside the project repository.
 
 Contact
 =======
@@ -29,6 +54,13 @@ contact@romainclement.com.
 
 Changelog
 =========
+
+Version 0.3.0
+-------------
+
+-  New delay module with time-varying delayline
+-  New filters: Comb, Convolution, FastConvolution, Custom, Windowed
+   Sinc
 
 Version 0.2.0
 -------------

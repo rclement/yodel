@@ -3,6 +3,9 @@ This module provides classes for audio signal filtering.
 """
 
 import math
+import yodel.delay
+import yodel.analysis
+import yodel.conversion
 
 
 class SinglePole:
@@ -464,3 +467,521 @@ class ParametricEQ:
         self.filters[0].process(input_signal, output_signal)
         for i in range(1, self.num_bands):
             self.filters[i].process(output_signal, output_signal)
+
+
+class Comb:
+    """
+    A comb filter combines the input signal with a delayed copy of itself.
+    Three types are available: feedback, feedforward and allpass.
+
+    *References:*
+        "Physical Audio Signal Processing",
+        Julius O. Smith
+        (https://ccrma.stanford.edu/~jos/pasp/Comb_Filters.html)
+
+        "Introduction to Computer Music",
+        Nick Collins
+    """
+
+    def __init__(self, samplerate, delay, gain):
+        """
+        Create a comb filter. By default, it is an allpass but one can select
+        another type with :py:meth:`feedback`, :py:meth:`feedforward` and
+        :py:meth:`allpass` methods.
+
+        :param samplerate: sample-rate in Hz
+        :param delay: delay in ms
+        :param gain: gain between -1 and +1
+        """
+        self.samplerate = samplerate
+        self.delayline = yodel.delay.DelayLine(samplerate, 1000, delay)
+        self.gain = 0
+        self.x1 = 0
+        self.y1 = 0
+        self.__combfunc = None
+        self.allpass(delay, gain)
+        self.reset()
+
+    def reset(self):
+        """
+        Clear the current comb filter state.
+        """
+        self.delayline.clear()
+        self.x1 = 0
+        self.y1 = 0
+
+    def feedback(self, delay, gain):
+        """
+        Make a feedback comb filter.
+
+        :param delay: delay in ms
+        :param gain: gain between -1 and + 1
+        """
+        realdly = (((delay * self.samplerate / 1000.0) - 1.0) *
+                   1000.0 / self.samplerate)
+        self.set_delay(realdly)
+        self.set_gain(gain)
+        self.__combfunc = self.__feedback
+
+    def feedforward(self, delay, gain):
+        """
+        Make a feedforward comb filter.
+
+        :param delay: delay in ms
+        :param gain: gain between -1 and + 1
+        """
+        self.set_delay(delay)
+        self.set_gain(gain)
+        self.__combfunc = self.__feedforward
+
+    def allpass(self, delay, gain):
+        """
+        Make a feedforward comb filter.
+
+        :param delay: delay in ms
+        :param gain: gain between -1 and + 1
+        """
+        self.set_delay(delay)
+        self.set_gain(gain)
+        self.__combfunc = self.__allpass
+
+    def set_delay(self, delay):
+        """
+        Change the current delay of the comb filter.
+
+        :param delay: delay in ms
+        """
+        self.delayline.set_delay(delay)
+
+    def set_gain(self, gain):
+        """
+        Change the current gain of the comb filter.
+
+        :param gain: gain between -1 and + 1
+        """
+        self.gain = gain
+
+    def __feedback(self, input_sample):
+        """
+        Feedback comb filtering.
+
+        :param input_sample: input sample
+        :return: filtered sample
+        """
+        return (input_sample +
+                self.gain * self.delayline.process_sample(self.y1))
+
+    def __feedforward(self, input_sample):
+        """
+        Feedforward comb filtering.
+
+        :param input_sample: input sample
+        :return: filtered sample
+        """
+        return (input_sample +
+                self.gain * self.delayline.process_sample(input_sample))
+
+    def __allpass(self, input_sample):
+        """
+        All-pass comb filtering.
+
+        :param input_sample: input sample
+        :return: filtered sample
+        """
+        return (self.gain * input_sample - self.gain * self.y1 + self.x1)
+
+    def process_sample(self, input_sample):
+        """
+        Filter a single sample.
+
+        :param input_sample: input sample
+        :return: filtered sample
+        """
+        return self.__combfunc(input_sample)
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal.
+
+        :param input_signal: input signal
+        :param output_signal: filtered signal
+        """
+        size = len(input_signal)
+        for i in range(0, size):
+            output_signal[i] = self.process_sample(input_signal[i])
+            self.x1 = input_signal[i]
+            self.y1 = output_signal[i]
+
+
+class Convolution:
+    """
+    The convolution filter performs FIR filtering using a provided impulse
+    response signal.
+
+    *Warning:*
+        It should not be used in practice for computational reasons,
+        and should only be used for testing purposes. Instead, prefer
+        using the :py:class:`FastConvolution`.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
+    """
+
+    def __init__(self, framesize, impulse_response):
+        """
+        Create a convolution filter.
+
+        :param framesize: framesize of input buffers to be filtered
+        :param impulse_response: the impulse response signal to used
+        """
+        self.framesize = framesize
+        self.impulse_response = impulse_response
+        self.irsize = len(impulse_response)
+        self.convsize = self.framesize + self.irsize - 1
+        self.olapsize = self.convsize - self.framesize
+        self.conv = [0] * self.convsize
+        self.olap = [0] * self.olapsize
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal with the impulse response.
+        The length of the input signal must be the one defined at filter
+        creation.
+
+        The filtered output signal will be of the same length. The 'tail' of
+        the convolution will be added to the beginning of the next filtered
+        signal.
+
+        To obtain the 'tail' of the convolution without filtering another
+        signal, simply process an input signal filled with zeros.
+
+        :param input_signal: input signal to be filtered
+        :param output_signal: filtered signal
+        """
+        for i in range(0, self.convsize):
+            self.conv[i] = 0
+
+        for i in range(0, self.framesize):
+            for j in range(0, self.irsize):
+                self.conv[i + j] += input_signal[i] * self.impulse_response[j]
+
+        if self.olapsize <= self.framesize:
+            for i in range(0, self.olapsize):
+                output_signal[i] = self.conv[i] + self.olap[i]
+
+            for i in range(self.olapsize, self.framesize):
+                output_signal[i] = self.conv[i]
+
+            for i in range(self.framesize, self.convsize):
+                self.olap[i - self.framesize] = self.conv[i]
+        else:
+            for i in range(0, self.framesize):
+                output_signal[i] = self.conv[i] + self.olap[i]
+
+            for i in range(self.framesize, self.olapsize):
+                self.olap[i - self.framesize] = self.olap[i] + self.conv[i]
+
+            for i in range(self.olapsize, self.convsize):
+                self.olap[i - self.framesize] = self.conv[i]
+
+
+class FastConvolution:
+    """
+    The fast convolution filter performs FIR filtering using a provided impulse
+    response signal.
+
+    This filter uses a faster algorithm than standard :py:class:`Convolution`,
+    based on the :py:class:`yodel.analysis.FFT`.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
+    """
+
+    def __init__(self, framesize, impulse_response):
+        """
+        Create a fast convolution filter.
+
+        :param framesize: framesize of input buffers to be filtered
+        :param impulse_response: the impulse response signal to used
+        """
+        self.framesize = framesize
+        self.irsize = len(impulse_response)
+        self.convsize = self.framesize + self.irsize - 1
+        self.fftsize = 1 << int(math.ceil(math.log(self.convsize, 2)))
+        self.olapsize = self.convsize - self.framesize
+
+        self.ir = [0] * self.fftsize
+        self.ir_real = [0] * self.fftsize
+        self.ir_imag = [0] * self.fftsize
+        self.signal = [0] * self.fftsize
+        self.signal_real = [0] * self.fftsize
+        self.signal_imag = [0] * self.fftsize
+        self.olap = [0] * self.olapsize
+
+        for i in range(0, self.irsize):
+            self.ir[i] = impulse_response[i]
+
+        self.fft = yodel.analysis.FFT(self.fftsize)
+        self.fft.forward(self.ir, self.ir_real, self.ir_imag)
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal with the impulse response.
+        The length of the input signal must be the one defined at filter
+        creation.
+
+        The filtered output signal will be of the same length. The 'tail' of
+        the convolution will be added to the beginning of the next filtered
+        signal.
+
+        To obtain the 'tail' of the convolution without filtering another
+        signal, simply process an input signal filled with zeros.
+
+        :param input_signal: input signal to be filtered
+        :param output_signal: filtered signal
+        """
+        for i in range(0, self.framesize):
+            self.signal[i] = input_signal[i]
+
+        for i in range(self.framesize, self.fftsize):
+            self.signal[i] = 0
+
+        self.fft.forward(self.signal, self.signal_real, self.signal_imag)
+
+        for i in range(0, int((self.fftsize/2)+1)):
+            temp = (self.signal_real[i] * self.ir_real[i] -
+                    self.signal_imag[i] * self.ir_imag[i])
+            self.signal_imag[i] = (self.signal_real[i] * self.ir_imag[i] +
+                                   self.signal_imag[i] * self.ir_real[i])
+            self.signal_real[i] = temp
+
+        self.fft.inverse(self.signal_real, self.signal_imag, self.signal)
+
+        if self.olapsize <= self.framesize:
+            for i in range(0, self.olapsize):
+                output_signal[i] = self.signal[i] + self.olap[i]
+
+            for i in range(self.olapsize, self.framesize):
+                output_signal[i] = self.signal[i]
+
+            for i in range(self.framesize, self.convsize):
+                self.olap[i - self.framesize] = self.signal[i]
+        else:
+            for i in range(0, self.framesize):
+                output_signal[i] = self.signal[i] + self.olap[i]
+
+            for i in range(self.framesize, self.olapsize):
+                self.olap[i - self.framesize] = self.olap[i] + self.signal[i]
+
+            for i in range(self.olapsize, self.convsize):
+                self.olap[i - self.framesize] = self.signal[i]
+
+
+class WindowedSinc:
+    """
+    A windowed sinc filter allows to separate one frequency band from another,
+    using :py:meth:`low_pass`, :py:meth:`high_pass`, :py:meth:`band_pass` and
+    :py:meth:`band_reject` forms.
+    Windowing is done using a Blackman :py:class:`yodel.analysis.Window`.
+    The filtering is performed with a :py:class:`FastConvolution` filter.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
+    """
+
+    def __init__(self, samplerate, framesize):
+        """
+        Create a windowed sinc filter with a flat frequency response.
+
+        :param samplerate: sample-rate in Hz
+        :param framesize: framesize of input buffers to be filtered
+        """
+        self.samplerate = samplerate
+        self.framesize = framesize
+        self.cutoff = 0
+        self.kernelsize = 3
+        self.kernel = [0] * self.kernelsize
+        self.kernel[0] = 1
+        self.win = yodel.analysis.Window(self.kernelsize)
+        self.win.blackman(self.kernelsize)
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+    def low_pass(self, cutoff, bandwidth):
+        """
+        Make a low-pass filter with given cutoff frequency and bandwidth.
+        Lowering the bandwidth will increase the size of the kernel filter,
+        thus increasing the roll-off rate but also the computation cost.
+
+        :param cutoff: cut-off frequency in Hz
+        :param bandwidth: frequency band width in Hz
+        """
+        self.cutoff = cutoff
+        normcutoff = cutoff / self.samplerate
+        self.kernelsize = int(4.0 * self.samplerate / bandwidth)
+        if (self.kernelsize % 2) == 0:
+            self.kernelsize += 1
+        self.kernel = [0] * self.kernelsize
+        kernelsizeon2 = int((self.kernelsize-1)/2)
+
+        for i in range(0, self.kernelsize):
+            if i == kernelsizeon2:
+                self.kernel[i] = 2.0 * math.pi * normcutoff
+            else:
+                tmp = (i - kernelsizeon2)
+                self.kernel[i] = (math.sin(2.0 * math.pi * normcutoff * tmp)
+                                  / tmp)
+
+        self.win.blackman(self.kernelsize)
+        self.win.process(self.kernel, self.kernel)
+
+        norm = 0
+        for i in range(0, self.kernelsize):
+            norm += self.kernel[i]
+
+        for i in range(0, self.kernelsize):
+            self.kernel[i] /= norm
+
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+    def high_pass(self, cutoff, bandwidth):
+        """
+        Make a high-pass filter with given cutoff frequency and bandwidth.
+        Lowering the bandwidth will increase the size of the kernel filter,
+        thus increasing the roll-off rate but also the computation cost.
+
+        :param cutoff: cut-off frequency in Hz
+        :param bandwidth: frequency band width in Hz
+        """
+        self.low_pass(cutoff, bandwidth)
+
+        for i in range(0, self.kernelsize):
+            self.kernel[i] *= -1
+        self.kernel[int((self.kernelsize-1)/2)] += 1
+
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+    def band_reject(self, center, bandwidth):
+        """
+        Make a band-reject filter with given center frequency and bandwidth.
+        Lowering the bandwidth will increase the size of the kernel filter,
+        thus increasing the roll-off rate but also the computation cost.
+
+        :param center: center frequency in Hz
+        :param bandwidth: frequency band width in Hz
+        """
+        self.low_pass(center - bandwidth/2.0, bandwidth/2.0)
+
+        lowpass = [0] * self.kernelsize
+        for i in range(0, self.kernelsize):
+            lowpass[i] = self.kernel[i]
+
+        self.high_pass(center + bandwidth/2.0, bandwidth/2.0)
+
+        for i in range(0, self.kernelsize):
+            self.kernel[i] += lowpass[i]
+
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+    def band_pass(self, center, bandwidth):
+        """
+        Make a band-pass filter with given center frequency and bandwidth.
+        Lowering the bandwidth will increase the size of the kernel filter,
+        thus increasing the roll-off rate but also the computation cost.
+
+        :param center: center frequency in Hz
+        :param bandwidth: frequency band width in Hz
+        """
+        self.band_reject(center, bandwidth)
+
+        for i in range(0, self.kernelsize):
+            self.kernel[i] *= -1
+        self.kernel[int((self.kernelsize-1)/2)] += 1
+
+        self.conv = FastConvolution(self.framesize, self.kernel)
+
+
+class Custom:
+    """
+    A custom filter allows to design precisely the frequency response of a
+    digital filter. The filtering is then performed with a
+    :py:class:`FastConvolution` filter.
+
+    *Reference:*
+        "Digital Signal Processing, a practical guide for engineers and
+        scientists", Steven W. Smith
+    """
+
+    def __init__(self, samplerate, framesize):
+        """
+        Create a custom filter with a flat frequency response.
+        By default, the filter has a latency of (framesize/2) samples.
+
+        :param samplerate: sample-rate in Hz
+        :param framesize: framesize of input buffers to be filtered
+        """
+        self.samplerate = samplerate
+        self.framesize = framesize
+        flatresp = [1] * int((framesize/2)+1)
+        self.design(flatresp, False)
+
+    def design(self, freqresponse, db=True):
+        """
+        Create the filter impulse response from the specified frequency
+        response.
+
+        The response must represent the desired spectrum, and of
+        size (Nfft/2+1). The latency of the filter will be of (Nfft/2) samples.
+
+        The values of the frequency bands can either be specified in linear
+        scale (1 being flat) or in dB scale (0 being flat).
+
+        :param freqresponse: desired frequency response
+        :param db: True if the frequency response is specified in dB
+        """
+        self.frsize = len(freqresponse)
+        self.fftsize = int((self.frsize-1) * 2)
+        self.latency = int(self.fftsize / 2)
+        self.fr_real = [0] * self.fftsize
+        self.fr_imag = [0] * self.fftsize
+        self.ir = [0] * self.fftsize
+        self.shifted_ir = [0] * self.fftsize
+
+        for i in range(0, self.frsize):
+            if db:
+                self.fr_real[i] = yodel.conversion.db2lin(freqresponse[i])
+            else:
+                self.fr_real[i] = freqresponse[i]
+
+        self.fft = yodel.analysis.FFT(self.fftsize)
+        self.fft.inverse(self.fr_real, self.fr_imag, self.ir)
+
+        for i in range(0, self.fftsize):
+            index = int(i + self.frsize) % self.fftsize
+            self.shifted_ir[index] = self.ir[i]
+
+        self.win = yodel.analysis.Window(self.fftsize)
+        self.win.blackman(self.fftsize)
+        self.win.process(self.shifted_ir, self.ir)
+
+        self.fir = FastConvolution(self.framesize, self.ir)
+
+    def process(self, input_signal, output_signal):
+        """
+        Filter an input signal with the custom impulse response.
+        The length of the input signal must be the one defined at filter
+        creation.
+
+        As with :py:class:`Convolution`, the filtered output signal will be
+        of the same length. The 'tail' of the convolution will be added to the
+        beginning of the next filtered signal.
+
+        To obtain the 'tail' of the convolution without filtering another
+        signal, simply process an input signal filled with zeros.
+
+        :param input_signal: input signal to be filtered
+        :param output_signal: filtered signal
+        """
+        self.fir.process(input_signal, output_signal)
