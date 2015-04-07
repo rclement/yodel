@@ -109,7 +109,7 @@ class Biquad:
         """
         Make the filter inactive with a flat frequency response.
         """
-        self._a_coeffs = [0.0, 0.0, 0.0]
+        self._a_coeffs = [1.0, 0.0, 0.0]
         self._b_coeffs = [1.0, 0.0, 0.0]
         self._x1 = 0.0
         self._x2 = 0.0
@@ -131,6 +131,7 @@ class Biquad:
         self._b_coeffs[0] = ((1.0 - self._cos_w0) / 2.0) / self._a_coeffs[0]
         self._b_coeffs[1] = (1.0 - self._cos_w0) / self._a_coeffs[0]
         self._b_coeffs[2] = ((1.0 - self._cos_w0) / 2.0) / self._a_coeffs[0]
+        self._a_coeffs[0] = 1.0
 
     def high_pass(self, samplerate, cutoff, resonance):
         """
@@ -147,6 +148,7 @@ class Biquad:
         self._b_coeffs[0] = ((1.0 + self._cos_w0) / 2.0) / self._a_coeffs[0]
         self._b_coeffs[1] = -(1.0 + self._cos_w0) / self._a_coeffs[0]
         self._b_coeffs[2] = ((1.0 + self._cos_w0) / 2.0) / self._a_coeffs[0]
+        self._a_coeffs[0] = 1.0
 
     def band_pass(self, samplerate, center, resonance):
         """
@@ -163,6 +165,7 @@ class Biquad:
         self._b_coeffs[0] = (self._alpha) / self._a_coeffs[0]
         self._b_coeffs[1] = 0
         self._b_coeffs[2] = (- self._alpha) / self._a_coeffs[0]
+        self._a_coeffs[0] = 1.0
 
     def all_pass(self, samplerate, center, resonance):
         """
@@ -179,6 +182,7 @@ class Biquad:
         self._b_coeffs[0] = (1.0 - self._alpha) / self._a_coeffs[0]
         self._b_coeffs[1] = (-2.0 * self._cos_w0) / self._a_coeffs[0]
         self._b_coeffs[2] = (1.0 + self._alpha) / self._a_coeffs[0]
+        self._a_coeffs[0] = 1.0
 
     def notch(self, samplerate, center, resonance):
         """
@@ -195,6 +199,7 @@ class Biquad:
         self._b_coeffs[0] = (1.0) / self._a_coeffs[0]
         self._b_coeffs[1] = (-2.0 * self._cos_w0) / self._a_coeffs[0]
         self._b_coeffs[2] = (1.0) / self._a_coeffs[0]
+        self._a_coeffs[0] = 1.0
 
     def peak(self, samplerate, center, resonance, dbgain):
         """
@@ -212,6 +217,7 @@ class Biquad:
         self._b_coeffs[0] = (1.0 + self._alpha * self._a) / self._a_coeffs[0]
         self._b_coeffs[1] = (-2.0 * self._cos_w0) / self._a_coeffs[0]
         self._b_coeffs[2] = (1.0 - self._alpha * self._a) / self._a_coeffs[0]
+        self._a_coeffs[0] = 1.0
 
     def low_shelf(self, samplerate, cutoff, resonance, dbgain):
         """
@@ -244,6 +250,7 @@ class Biquad:
                                (self._a - 1) * self._cos_w0 -
                                self._sqrtAlpha)) /
                              self._a_coeffs[0])
+        self._a_coeffs[0] = 1.0
 
     def high_shelf(self, samplerate, cutoff, resonance, dbgain):
         """
@@ -277,10 +284,12 @@ class Biquad:
                                (self._a - 1) * self._cos_w0 -
                                self._sqrtAlpha)) /
                              self._a_coeffs[0])
+        self._a_coeffs[0] = 1.0
 
     def custom(self, a0, a1, a2, b0, b1, b2):
         """
-        Make a custom filter.
+        Make a custom filter. If the provided coefficients are already
+        normalized, make sure to set a0 to 1.
 
         :param a0: a[0] coefficient
         :param a1: a[1] coefficient
